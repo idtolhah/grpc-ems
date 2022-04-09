@@ -92,8 +92,8 @@ func Find(ctx context.Context) (*[]User, error) {
 }
 
 func loadLocalEnv() interface{} {
-	if _, runningInContainer := os.LookupEnv("MONGO_CONN"); !runningInContainer {
-		err := godotenv.Load(".env")
+	if _, runningInContainer := os.LookupEnv("CONTAINER"); !runningInContainer {
+		err := godotenv.Load(".env.local")
 		if err != nil {
 			log.Fatal(err)
 		}

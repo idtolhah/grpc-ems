@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"bff/auth"
+	"bff/cache"
 	"bff/client"
+	"bff/rate"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -21,17 +23,17 @@ var (
 	asset_equipment_client client.AssetEquipmentClient
 )
 
-// Call functions
+// Call controller functions
+// Users
 func GetUserDetails(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	userId, ok := c.Get("UserId")
+	userId, ok := c.Get("UserId") // Get UserId from gin context after jwt auth
 	if !ok {
 		client.Response(c, nil, errors.New("invalid user id in token"))
 		return
 	}
-	// fmt.Println("UserId from context: ", userId.(string))
 
 	data, err := user_client.GetUserDetails(userId.(string), &ctx)
 	if err != nil {
@@ -70,10 +72,18 @@ func GetUsers(c *gin.Context) {
 	client.Response(c, data, err)
 }
 
+// Master
 func GetAreas(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
+	if jsonData := cache.GetCacheByKey(c, "areas"); jsonData != nil {
+		log.Println("From Cache")
+		client.Response(c, jsonData, nil)
+		return
+	}
+
+	log.Println("From Service")
 	data, err := area_client.GetAreas(&ctx)
 	client.Response(c, data, err)
 }
@@ -82,6 +92,13 @@ func GetContacts(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
+	if jsonData := cache.GetCacheByKey(c, "contacts"); jsonData != nil {
+		log.Println("From Cache")
+		client.Response(c, jsonData, nil)
+		return
+	}
+
+	log.Println("From Service")
 	data, err := contact_client.GetContacts(&ctx)
 	client.Response(c, data, err)
 }
@@ -90,6 +107,13 @@ func GetAssetEquipments(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
+	if jsonData := cache.GetCacheByKey(c, "asset-equipments"); jsonData != nil {
+		log.Println("From Cache")
+		client.Response(c, jsonData, nil)
+		return
+	}
+
+	log.Println("From Service")
 	data, err := asset_equipment_client.GetAssetEquipments(&ctx)
 	client.Response(c, data, err)
 }
@@ -97,8 +121,10 @@ func GetAssetEquipments(c *gin.Context) {
 // Main
 func main() {
 	log.Println("Bff Service")
-
 	r := gin.Default()
+	r.ForwardedByClientIP = true
+	r.Use(rate.RateLimiter())
+
 	// r.Use(cors.Default())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},
@@ -107,21 +133,17 @@ func main() {
 		ExposeHeaders: []string{"Content-Length"},
 		MaxAge:        24 * time.Hour,
 	}))
-	// r.GET("/", GetContacts)
 
 	api := r.Group("/api")
 	api.POST("/users/login", Login)
 	api.GET("/areas", GetAreas)
 	api.GET("/contacts", GetContacts)
 	api.GET("/asset-equipments", GetAssetEquipments)
+	// api.GET("/cache/:key", GetCache)
 
 	protected := api.Use(auth.IsAuthenticated())
 	protected.GET("/users", GetUsers)
 	protected.GET("/users/profile", GetUserDetails)
-
-	// consul.RegisterServiceWithConsul("localhost", 50051, "bff-service")
-	// http.HandleFunc("/healthcheck", consul.Healthcheck)
-	// consul.DeregisterService("bff-service")
 
 	r.Run()
 }

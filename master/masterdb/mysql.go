@@ -39,7 +39,7 @@ type Contact struct {
 	Email  string
 }
 
-var _ = loadLocalEnv()
+var _ = LoadLocalEnv()
 var (
 	db       = GetEnv("MYSQL_DB")
 	username = GetEnv("MYSQL_USER")
@@ -111,9 +111,9 @@ func FindContacts(client *sql.DB, ctx context.Context) (*[]Contact, error) {
 }
 
 // Utils
-func loadLocalEnv() interface{} {
-	if _, runningInContainer := os.LookupEnv("GRPC_SERVICE"); !runningInContainer {
-		err := godotenv.Load(".env")
+func LoadLocalEnv() interface{} {
+	if _, runningInContainer := os.LookupEnv("CONTAINER"); !runningInContainer {
+		err := godotenv.Load(".env.local")
 		if err != nil {
 			log.Fatal(err)
 		}

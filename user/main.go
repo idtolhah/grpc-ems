@@ -2,13 +2,19 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 	"user/userdb"
 	"user/userpb"
 
 	"github.com/golang-jwt/jwt"
+	consulapi "github.com/hashicorp/consul/api"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
@@ -170,9 +176,55 @@ func error_credentials() error {
 	return status.Error(codes.Internal, "Invalid Credentials!")
 }
 
+// Consul
+func registerServiceWithConsul() {
+	config := consulapi.DefaultConfig()
+	consul, err := consulapi.NewClient(config)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	registration := new(consulapi.AgentServiceRegistration)
+	registration.ID = "user-service"   //replace with service id
+	registration.Name = "user-service" //replace with service name
+	address := hostname()
+	registration.Address = address
+	port, err := strconv.Atoi(port()[1:len(port())])
+	if err != nil {
+		log.Fatalln(err)
+	}
+	registration.Port = port
+	registration.Check = new(consulapi.AgentServiceCheck)
+	registration.Check.HTTP = fmt.Sprintf("http://%s:%v/healthcheck",
+		address, port)
+	registration.Check.Interval = "5s"
+	registration.Check.Timeout = "3s"
+	consul.Agent().ServiceRegister(registration)
+}
+
+func hostname() string {
+	hn, err := os.Hostname()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return hn
+}
+
+func port() string {
+	p := os.Getenv("PRODUCT_SERVICE_PORT")
+	if len(strings.TrimSpace(p)) == 0 {
+		return ":8100"
+	}
+	return fmt.Sprintf(":%s", p)
+}
+
+func healthcheck(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, `product service is good`)
+}
+
 // Main
 func main() {
 	log.Println("User Service")
+	registerServiceWithConsul()
 
 	lis, err := net.Listen("tcp", userdb.GetEnv("GRPC_SERVICE_HOST")+":"+userdb.GetEnv("GRPC_SERVICE_PORT"))
 	if err != nil {

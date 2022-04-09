@@ -1,32 +1,5 @@
 version: '3.7'
 services:
-  master:
-    # container_name: master-service
-    ports:
-      - '50051:50051'
-    image: master:latest
-    networks:
-      - my-network
-    # env_file:
-    #     - .env
-  user:
-    # container_name: user-service
-    ports:
-      - '50052-50062:50052'
-    image: user:latest
-    networks:
-      - my-network
-    # env_file:
-    #     - .env
-  bff:
-    # container_name: bff-service
-    ports:
-      - '8080:8080'
-    image: bff:latest
-    networks:
-      - my-network
-    # env_file:
-    #     - .env
   mongo:
     # container_name: mongo
     ports:
@@ -36,8 +9,6 @@ services:
     image: mongo
     networks:
       - my-network
-    # env_file:
-    #     - .env
   mariadb:
     # container_name: mariadb
     volumes:
@@ -49,8 +20,6 @@ services:
     image: 'mariadb:10.5.8'
     networks:
       - my-network
-    # env_file:
-    #     - .env
 
 networks:
   my-network:
