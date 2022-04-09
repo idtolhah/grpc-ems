@@ -38,7 +38,7 @@ func NewClient() {
 }
 
 func (*server) SetCache(c context.Context, req *redispb.SetRequest) (*redispb.SetResponse, error) {
-	log.Println("Called SetCache")
+	// log.Println("Called SetCache")
 
 	err := redisClient.Set(req.Key, req.Value, 0).Err()
 	if err != nil {
@@ -55,7 +55,7 @@ func (*server) SetCache(c context.Context, req *redispb.SetRequest) (*redispb.Se
 }
 
 func (*server) GetCache(c context.Context, req *redispb.GetRequest) (*redispb.GetResponse, error) {
-	log.Println("Called GetCache")
+	// log.Println("Called GetCache")
 
 	val, err := redisClient.Get(req.Key).Result()
 	if err != nil {

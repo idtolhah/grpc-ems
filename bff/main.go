@@ -79,12 +79,10 @@ func GetAreas(c *gin.Context) {
 	defer cancel()
 
 	if jsonData := cache.GetCacheByKey(c, "areas"); jsonData != nil {
-		log.Println("From Cache")
 		client.Response(c, jsonData, nil)
 		return
 	}
 
-	log.Println("From Service")
 	data, err := area_client.GetAreas(&ctx)
 	client.Response(c, data, err)
 }
@@ -94,12 +92,10 @@ func GetContacts(c *gin.Context) {
 	defer cancel()
 
 	if jsonData := cache.GetCacheByKey(c, "contacts"); jsonData != nil {
-		log.Println("From Cache")
 		client.Response(c, jsonData, nil)
 		return
 	}
 
-	log.Println("From Service")
 	data, err := contact_client.GetContacts(&ctx)
 	client.Response(c, data, err)
 }
@@ -109,12 +105,10 @@ func GetAssetEquipments(c *gin.Context) {
 	defer cancel()
 
 	if jsonData := cache.GetCacheByKey(c, "asset-equipments"); jsonData != nil {
-		log.Println("From Cache")
 		client.Response(c, jsonData, nil)
 		return
 	}
 
-	log.Println("From Service")
 	data, err := asset_equipment_client.GetAssetEquipments(&ctx)
 	client.Response(c, data, err)
 }
