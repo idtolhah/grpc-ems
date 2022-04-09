@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	allowlist "bff/allowlistt"
 	"bff/auth"
 	"bff/cache"
 	"bff/client"
@@ -122,8 +123,16 @@ func GetAssetEquipments(c *gin.Context) {
 func main() {
 	log.Println("Bff Service")
 	r := gin.Default()
-	r.ForwardedByClientIP = true
-	r.Use(rate.RateLimiter())
+
+	// enable rate limiter per ip address
+	if client.GetEnv("USE_RATE_LIMITER") == "yes" {
+		r.ForwardedByClientIP = true
+		r.Use(rate.RateLimiter())
+	}
+	// if need to specify serveral range of allowed sources, use comma to concatenate them
+	if client.GetEnv("USE_IP_ALLOWLISTING") == "yes" {
+		r.Use(allowlist.CIDR("172.18.0.0/16, 127.0.0.1/32, 192.168.43.1/32"))
+	}
 
 	// r.Use(cors.Default())
 	r.Use(cors.New(cors.Config{
