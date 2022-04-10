@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	allowlist "bff/allowlistt"
+	allowlist "bff/allowlist"
 	"bff/auth"
 	"bff/cache"
 	"bff/client"
@@ -78,7 +78,8 @@ func GetAreas(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	if jsonData := cache.GetCacheByKey(c, "areas"); jsonData != nil {
+	jsonData := cache.GetCacheByKeyDirect("areas")
+	if jsonData != nil && client.GetEnv("USE_CACHE") == "yes" {
 		client.Response(c, jsonData, nil)
 		return
 	}
@@ -91,7 +92,8 @@ func GetContacts(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	if jsonData := cache.GetCacheByKey(c, "contacts"); jsonData != nil {
+	jsonData := cache.GetCacheByKeyDirect("contacts")
+	if jsonData != nil && client.GetEnv("USE_CACHE") == "yes" {
 		client.Response(c, jsonData, nil)
 		return
 	}
@@ -104,7 +106,8 @@ func GetAssetEquipments(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	if jsonData := cache.GetCacheByKey(c, "asset-equipments"); jsonData != nil {
+	jsonData := cache.GetCacheByKeyDirect("asset-equipments")
+	if jsonData != nil && client.GetEnv("USE_CACHE") == "yes" {
 		client.Response(c, jsonData, nil)
 		return
 	}
@@ -139,13 +142,13 @@ func main() {
 
 	api := r.Group("/api")
 	api.POST("/users/login", Login)
+	api.GET("/users", GetUsers)
 	api.GET("/areas", GetAreas)
 	api.GET("/contacts", GetContacts)
 	api.GET("/asset-equipments", GetAssetEquipments)
-	// api.GET("/cache/:key", GetCache)
 
 	protected := api.Use(auth.IsAuthenticated())
-	protected.GET("/users", GetUsers)
+	// protected.GET("/users", GetUsers)
 	protected.GET("/users/profile", GetUserDetails)
 
 	r.Run()

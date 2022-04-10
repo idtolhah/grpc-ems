@@ -1,6 +1,0 @@
-Step 1
-all database send their data to redis
-everytime update occurs, update redis
-
-Step 2
-every read operation, go to redis first

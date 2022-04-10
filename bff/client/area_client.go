@@ -26,9 +26,15 @@ var (
 
 func prepareAreaGrpcClient(c *context.Context) error {
 
+	// Prom: Get Registry & Metrics
+	reg, grpcMetrics := GetRegistryMetrics()
+	// Prom: Create a insecure gRPC channel to communicate with the server.
 	conn, err := grpc.DialContext(*c, areaGrpcService, []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithBlock()}...)
+		grpc.WithUnaryInterceptor(grpcMetrics.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(grpcMetrics.StreamClientInterceptor()),
+		grpc.WithBlock()}...,
+	)
 
 	if err != nil {
 		areaGrpcServiceClient = nil
@@ -39,6 +45,9 @@ func prepareAreaGrpcClient(c *context.Context) error {
 		conn.Close()
 		return nil
 	}
+
+	// Prom
+	CreateStartPromHttpServer(reg, 9092)
 
 	areaGrpcServiceClient = masterpb.NewMasterServiceClient(conn)
 	return nil
