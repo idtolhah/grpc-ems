@@ -22,6 +22,7 @@ var (
 	area_client            client.AreaClient
 	contact_client         client.ContactClient
 	asset_equipment_client client.AssetEquipmentClient
+	packing_client         client.PackingClient
 )
 
 // Call controller functions
@@ -141,15 +142,19 @@ func main() {
 	}))
 
 	api := r.Group("/api")
+	// Login
 	api.POST("/users/login", Login)
-	api.GET("/users", GetUsers)
+	// Master
 	api.GET("/areas", GetAreas)
 	api.GET("/contacts", GetContacts)
 	api.GET("/asset-equipments", GetAssetEquipments)
 
 	protected := api.Use(auth.IsAuthenticated())
-	// protected.GET("/users", GetUsers)
+	// Users
+	protected.GET("/users", GetUsers)
 	protected.GET("/users/profile", GetUserDetails)
+	// Packing
+	protected.POST("/packings", packing_client.CreatePacking)
 
 	r.Run()
 }

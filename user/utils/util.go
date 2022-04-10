@@ -14,6 +14,10 @@ func Error_response(err error) error {
 	return status.Error(codes.Internal, err.Error())
 }
 
+func Error_credentials() error {
+	return status.Error(codes.Internal, "Invalid Credentials!")
+}
+
 func LoadLocalEnv() interface{} {
 	if _, runningInContainer := os.LookupEnv("CONTAINER"); !runningInContainer {
 		err := godotenv.Load(".env.local")

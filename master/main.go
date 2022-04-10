@@ -45,17 +45,27 @@ type server struct {
 
 func (*server) GetAreas(ctx context.Context, req *masterpb.GetAreasRequest) (*masterpb.GetAreasResponse, error) {
 	// log.Println("Called GetAreas")
-
-	c, cancel := context.WithTimeout(ctx, timeout)
+	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	data, err := masterdb.FindAreas(db_client, c)
+	// Query: Start
+	var data []masterdb.Area
+	results, err := db_client.Query("SELECT id, name FROM areas")
 	if err != nil {
-		return nil, utils.Error_response(err)
+		return nil, err
 	}
+	var area masterdb.Area
+	for results.Next() {
+		err = results.Scan(&area.Id, &area.Name)
+		if err != nil {
+			panic(err.Error())
+		}
+		data = append(data, area)
+	}
+	// Query: End
 
 	var res masterpb.GetAreasResponse
-	for _, d := range *data {
+	for _, d := range data {
 		res.Areas = append(res.Areas, &masterpb.Area{Id: int32(d.Id), Name: d.Name})
 	}
 
@@ -69,17 +79,27 @@ func (*server) GetAreas(ctx context.Context, req *masterpb.GetAreasRequest) (*ma
 
 func (*server) GetAssetEquipments(ctx context.Context, req *masterpb.GetAssetEquipmentsRequest) (*masterpb.GetAssetEquipmentsResponse, error) {
 	// log.Println("Called GetAssetEquipments")
-
-	c, cancel := context.WithTimeout(ctx, timeout)
+	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	data, err := masterdb.FindAssetEquipments(db_client, c)
+	// Query: Start
+	var data []masterdb.AssetEquipment
+	results, err := db_client.Query("SELECT id, item, item_check, checking_method, tools, standard_area, photo, line_id, machine_id FROM asset_equipments")
 	if err != nil {
-		return nil, utils.Error_response(err)
+		return nil, err
 	}
+	var a masterdb.AssetEquipment
+	for results.Next() {
+		err = results.Scan(&a.ID, &a.Item, &a.ItemCheck, &a.CheckingMethod, &a.Tools, &a.StandardArea, &a.Photo, &a.LineID, &a.MachineID)
+		if err != nil {
+			panic(err.Error())
+		}
+		data = append(data, a)
+	}
+	// Query: End
 
 	var res masterpb.GetAssetEquipmentsResponse
-	for _, d := range *data {
+	for _, d := range data {
 		res.Assetequipments = append(res.Assetequipments, &masterpb.AssetEquipment{Id: int32(d.ID), Item: d.Item, ItemCheck: d.ItemCheck, CheckingMethod: d.CheckingMethod, Tools: d.Tools, StandardArea: d.StandardArea, Photo: d.Photo, LineId: int32(d.LineID), MachineId: int32(d.MachineID)})
 	}
 
@@ -93,17 +113,27 @@ func (*server) GetAssetEquipments(ctx context.Context, req *masterpb.GetAssetEqu
 
 func (*server) GetContacts(ctx context.Context, req *masterpb.GetContactsRequest) (*masterpb.GetContactsResponse, error) {
 	// log.Println("Called GetContacts")
-
-	c, cancel := context.WithTimeout(ctx, timeout)
+	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	data, err := masterdb.FindContacts(db_client, c)
+	// Query: Start
+	var data []masterdb.Contact
+	results, err := db_client.Query("SELECT * FROM contacts")
 	if err != nil {
-		return nil, utils.Error_response(err)
+		return nil, err
 	}
+	var contact masterdb.Contact
+	for results.Next() {
+		err = results.Scan(&contact.Id, &contact.Title, &contact.Number, &contact.OpTime, &contact.OpDay, &contact.Email)
+		if err != nil {
+			panic(err.Error())
+		}
+		data = append(data, contact)
+	}
+	// Query: End
 
 	var res masterpb.GetContactsResponse
-	for _, d := range *data {
+	for _, d := range data {
 		res.Contacts = append(res.Contacts, &masterpb.Contact{Id: int32(d.Id), Title: d.Title, Number: d.Number, Optime: d.OpTime, Opday: d.OpDay, Email: d.Email})
 	}
 
@@ -126,7 +156,7 @@ func main() {
 	log.Println("Master Service")
 	redis.NewClient()
 
-	lis, err := net.Listen("tcp", masterdb.GetEnv("GRPC_SERVICE_HOST")+":"+masterdb.GetEnv("GRPC_SERVICE_PORT"))
+	lis, err := net.Listen("tcp", utils.GetEnv("GRPC_SERVICE_HOST")+":"+utils.GetEnv("GRPC_SERVICE_PORT"))
 	if err != nil {
 		log.Println("ERROR:", err.Error())
 	}

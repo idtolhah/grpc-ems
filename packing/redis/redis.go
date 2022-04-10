@@ -2,7 +2,6 @@ package redis
 
 import (
 	"log"
-	"packing/packingdb"
 	"packing/utils"
 	"strconv"
 
@@ -12,13 +11,13 @@ import (
 var redisClient *redis.Client
 
 func NewClient() {
-	db, err := strconv.Atoi(packingdb.GetEnv("REDIS_DB"))
+	db, err := strconv.Atoi(utils.GetEnv("REDIS_DB"))
 	if err != nil {
 		log.Fatalln("Invalid db")
 	}
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     packingdb.GetEnv("REDIS_HOST") + ":" + packingdb.GetEnv("REDIS_PORT"),
-		Password: packingdb.GetEnv("REDIS_PWD"),
+		Addr:     utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT"),
+		Password: utils.GetEnv("REDIS_PWD"),
 		DB:       db,
 	})
 	log.Printf("New Client %v\n", redisClient)

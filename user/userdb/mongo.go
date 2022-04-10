@@ -3,14 +3,12 @@ package userdb
 import (
 	"context"
 	"errors"
-	"log"
-	"os"
 
-	"github.com/joho/godotenv"
+	"user/utils"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
@@ -28,20 +26,20 @@ type User struct {
 	UpdatedAt    string             `bson:"updatedAt,omitempty"`
 }
 
-var _ = loadLocalEnv()
+var _ = utils.LoadLocalEnv()
 var (
-	db = GetEnv("MONGO_DATABASE")
+	DB = utils.GetEnv("MONGO_DATABASE")
 	// user = GetEnv("MONGO_USER")
 	// pwd  = GetEnv("MONGO_PWD")
-	coll = GetEnv("MONGO_COLLECTION")
-	addr = GetEnv("MONGO_CONN")
+	Coll = utils.GetEnv("MONGO_COLLECTION")
+	Addr = utils.GetEnv("MONGO_CONN")
 )
 
 var Mongo_Client *mongo.Client
 
 func NewClient(ctx context.Context) (*mongo.Client, error) {
 	client, err := mongo.Connect(ctx,
-		options.Client().ApplyURI(addr))
+		options.Client().ApplyURI(Addr))
 	// .SetAuth(options.Credential{
 	// 	AuthSource: db,
 	// 	Username:   user,
@@ -55,56 +53,4 @@ func NewClient(ctx context.Context) (*mongo.Client, error) {
 		return nil, errors.New("cannot connect to mongodb instance")
 	}
 	return client, nil
-}
-
-func FindOne(ctx context.Context, condition bson.M) (*User, error) {
-
-	collection := Mongo_Client.Database(db).Collection(coll)
-
-	var data User
-	err := collection.FindOne(ctx, condition).Decode(&data)
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
-}
-
-func Find(ctx context.Context) (*[]User, error) {
-
-	collection := Mongo_Client.Database(db).Collection(coll)
-
-	var data []User
-	cursor, err := collection.Find(ctx, bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	for cursor.Next(context.Background()) {
-		var user User
-		cursor.Decode(&user)
-		data = append(data, user)
-	}
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
-}
-
-func loadLocalEnv() interface{} {
-	if _, runningInContainer := os.LookupEnv("CONTAINER"); !runningInContainer {
-		err := godotenv.Load(".env.local")
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	return nil
-}
-
-func GetEnv(key string) string {
-	value, ok := os.LookupEnv(key)
-	if !ok {
-		log.Fatal("Environment variable not found: ", key)
-	}
-	return value
 }

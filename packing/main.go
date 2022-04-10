@@ -43,17 +43,31 @@ type server struct {
 
 func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsRequest) (*packingpb.GetPackingsResponse, error) {
 	// log.Println("Called GetPackings")
-
-	c, cancel := context.WithTimeout(ctx, timeout)
+	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	data, err := packingdb.FindPackings(db_client, c)
+	// Query: Start
+	var data []packingdb.Packing
+	results, err := db_client.Query("SELECT * FROM packings")
 	if err != nil {
-		return nil, utils.Error_response(err)
+		return nil, err
 	}
+	var packing packingdb.Packing
+	for results.Next() {
+		err = results.Scan(
+			&packing.Id, &packing.FoId, &packing.LineId, &packing.MachineId, &packing.UnitId, &packing.DepartmentId,
+			&packing.AreaId, &packing.CompletedAt, &packing.Status, &packing.CreatedAt, &packing.UpdatedAt,
+		)
+		if err != nil {
+			// panic(err.Error())
+			log.Println(err)
+		}
+		data = append(data, packing)
+	}
+	// Query: End
 
 	var res packingpb.GetPackingsResponse
-	for _, d := range *data {
+	for _, d := range data {
 		res.Packings = append(res.Packings, &packingpb.Packing{
 			Id: d.Id, FoId: d.FoId, LineId: d.LineId, MachineId: d.MachineId, UnitId: d.UnitId, DepartmentId: d.DepartmentId,
 			AreaId: d.AreaId, CompletedAt: d.CompletedAt, Status: d.Status, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt,
@@ -68,6 +82,27 @@ func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsReques
 	return &res, nil
 }
 
+func (*server) CreatePacking(ctx context.Context, req *packingpb.CreatePackingRequest) (*packingpb.CreatePackingResponse, error) {
+	log.Println("Called Create Packing")
+
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	_, err := db_client.Exec(
+		"insert into packings(fo_id, line_id, machine_id, status, unit_id, department_id, area_id, createdAt, updatedAt) values(?,?,?,?,?,?,?,?,?)",
+		req.UserId, req.LineId, req.MachineId, req.StatusSync, req.UnitId, req.DepartmentId, req.AreaId, req.ObservationDatetime, req.ObservationDatetime,
+	)
+
+	if err != nil {
+		return nil, utils.Error_response(err)
+	}
+
+	return &packingpb.CreatePackingResponse{
+		Id:   1,
+		Data: req,
+	}, nil
+}
+
 func init() {
 	// Register standard server metrics and customized metrics to registry.
 	reg.MustRegister(grpcMetrics, customizedCounterMetric)
@@ -79,7 +114,7 @@ func main() {
 	log.Println("Packing Service")
 	redis.NewClient()
 
-	lis, err := net.Listen("tcp", packingdb.GetEnv("GRPC_SERVICE_HOST")+":"+packingdb.GetEnv("GRPC_SERVICE_PORT"))
+	lis, err := net.Listen("tcp", utils.GetEnv("GRPC_SERVICE_HOST")+":"+utils.GetEnv("GRPC_SERVICE_PORT"))
 	if err != nil {
 		log.Println("ERROR:", err.Error())
 	}
