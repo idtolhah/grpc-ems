@@ -3,10 +3,14 @@ package main
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
+	"strconv"
 
 	"net"
 	"packing/packingdb"
@@ -37,6 +41,27 @@ var (
 	}, []string{"name"})
 )
 
+type NullString string
+
+func (s *NullString) Scan(value interface{}) error {
+	if value == nil {
+		*s = ""
+		return nil
+	}
+	strVal, ok := value.(string)
+	if !ok {
+		return errors.New("Column is not a string")
+	}
+	*s = NullString(strVal)
+	return nil
+}
+func (s NullString) Value() (driver.Value, error) {
+	if len(s) == 0 { // if nil or empty string
+		return nil, nil
+	}
+	return string(s), nil
+}
+
 type server struct {
 	packingpb.UnimplementedPackingServiceServer
 }
@@ -46,11 +71,39 @@ func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsReques
 	defer cancel()
 
 	// Query: Start
-	var data []packingpb.Packing
-	results, err := db_client.Query("SELECT * FROM packings")
+	condition := "WHERE 1=1"
+	if req.LineId != "" {
+		condition += " AND line_id = " + req.LineId
+	}
+	if req.MachineId != "" {
+		condition += " AND machine_id = " + req.MachineId
+	}
+
+	var total int
+	var page = 1
+	var perpage = 5
+	var last_page = 1
+	err := db_client.QueryRow(`SELECT COUNT(id) FROM packings ` + condition).Scan(&total)
 	if err != nil {
 		return nil, err
 	}
+
+	if req.Page != "" && req.Perpage != "" {
+		page, _ = strconv.Atoi(req.Page)
+		perpage, _ = strconv.Atoi(req.Perpage)
+		offset := (page - 1) * perpage
+		last_page = int(math.Ceil(float64(total / perpage)))
+		condition += " LIMIT " + req.Perpage + " OFFSET " + strconv.Itoa(int(offset))
+	}
+
+	var data []packingpb.Packing
+	results, err := db_client.Query(`
+		SELECT id, fo_id, line_id, machine_id, unit_id, department_id, area_id, COALESCE(completed_at,''), status, 
+		createdAt, updatedAt FROM packings ` + condition)
+	if err != nil {
+		return nil, err
+	}
+
 	var packing packingpb.Packing
 	for results.Next() {
 		err = results.Scan(
@@ -72,6 +125,9 @@ func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsReques
 			AreaId: d.AreaId, CompletedAt: d.CompletedAt, Status: d.Status, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt,
 		})
 	}
+	res.Total = int64(total)
+	res.Page = int64(page)
+	res.LastPage = int64(last_page)
 
 	go func() {
 		stringData, _ := json.Marshal(res.Packings)
@@ -87,13 +143,52 @@ func (*server) GetPacking(ctx context.Context, req *packingpb.GetPackingRequest)
 
 	// Query: Start
 	var packing packingpb.Packing
-	err := db_client.QueryRow("select * from packings where id=?", req.Id).Scan(&packing.Id)
+	err := db_client.QueryRow(`
+		select id, fo_id, line_id, machine_id, unit_id, department_id, area_id, COALESCE(completed_at,''), status, 
+		createdAt, updatedAt from packings where id=?`, req.Id).Scan(
+		&packing.Id, &packing.FoId, &packing.LineId, &packing.MachineId, &packing.UnitId, &packing.DepartmentId,
+		&packing.AreaId, &packing.CompletedAt, &packing.Status, &packing.CreatedAt, &packing.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var equipmentCheckings []*packingpb.EquipmentChecking
+	results, err := db_client.Query(`
+		SELECT id, id_equipment_checking_list, packing_id, asset_equipment_id, 
+		fo_id,  fo_photo, fo_condition, COALESCE(fo_note,''), 
+		COALESCE(ao_id,''), COALESCE(ao_conclusion, 0), COALESCE(ao_note,''), COALESCE(ao_created_at,''), 
+		COALESCE(mo_id,''), COALESCE(mo_note,''), COALESCE(mo_repair_photo,''), COALESCE(mo_created_at,''), 
+		COALESCE(mr_id,''), COALESCE(mr_comment,''), COALESCE(mr_created_at,''), COALESCE(createdAt,''), COALESCE(updatedAt,'') 
+		FROM equipment_checkings where packing_id=?`, packing.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	var ec packingpb.EquipmentChecking
+	for results.Next() {
+		err = results.Scan(
+			&ec.Id, &ec.IdEquipmentCheckingList, &ec.PackingId, &ec.AssetEquipmentId, &ec.FoId, &ec.FoPhoto, &ec.FoCondition, &ec.FoNote,
+			&ec.AoId, &ec.AoConclusion, &ec.AoNote, &ec.AoCreatedAt, &ec.MoId, &ec.MoRepairPhoto, &ec.MoNote, &ec.MoCreatedAt,
+			&ec.MrId, &ec.MrComment, &ec.MrCreatedAt, &ec.CreatedAt, &ec.UpdatedAt,
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		equipmentCheckings = append(equipmentCheckings, &ec)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 	// Query: End
 
-	return &packingpb.GetPackingResponse{Packing: &packing, EquipmentCheckings: []*packingpb.EquipmentChecking{}}, nil
+	return &packingpb.GetPackingResponse{
+		Id: packing.Id, FoId: packing.FoId, LineId: packing.LineId, MachineId: packing.MachineId, UnitId: packing.UnitId,
+		DepartmentId: packing.DepartmentId, AreaId: packing.AreaId, CompletedAt: packing.CompletedAt, Status: packing.Status,
+		CreatedAt: packing.CreatedAt, UpdatedAt: packing.UpdatedAt,
+		EquipmentCheckings: equipmentCheckings,
+	}, nil
 }
 
 func (*server) CreatePacking(ctx context.Context, req *packingpb.CreatePackingRequest) (*packingpb.CreatePackingResponse, error) {

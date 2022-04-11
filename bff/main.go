@@ -59,6 +59,8 @@ func main() {
 	protected.GET("/users", user_client.GetUsers)
 	protected.GET("/users/profile", user_client.GetUserDetails)
 	// Packing
+	protected.GET("/packings", packing_client.GetPackings)
+	protected.GET("/packings/:id", packing_client.GetPacking)
 	protected.POST("/packings", packing_client.CreatePacking)
 	protected.POST("/packings/:id/equipment-checkings", packing_client.CreateEquipmentChecking)
 	protected.PUT("/packings/:id/equipment-checkings/:ecid", packing_client.UpdateEquipmentChecking)

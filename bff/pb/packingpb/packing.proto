@@ -15,6 +15,7 @@ message Packing {
     int32 status = 9;
     string createdAt = 10;
     string updatedAt = 11;
+    repeated EquipmentChecking equipment_checkings = 12;
 }
 
 message EquipmentChecking {
@@ -41,30 +42,46 @@ message EquipmentChecking {
     string mr_id = 17;
     string mr_comment = 18;
     string mr_created_at = 19;
+
+    string createdAt = 20;
+    string updatedAt = 21;
 }
 
 // All
 message GetPackingsRequest {
-    int32 nophoto = 1;
-    int32 page = 2;
-    int32 perpage = 3;
-    int32 status = 4;
-    int32 line_id = 5;
-    int32 machine_id = 6;
+    string nophoto = 1;
+    string page = 2;
+    string perpage = 3;
+    string status = 4;
+    string line_id = 5;
+    string machine_id = 6;
     string date = 7; 
-    int32 fo_condition = 8;
-    int32 ao_condition = 9;
+    string fo_condition = 8;
+    string ao_conclusion = 9;
 }
 message GetPackingsResponse {
     repeated Packing packings = 1;
+    int64 total = 2;
+    int64 page = 3;
+    int64 last_page = 4;
 }
 
 message GetPackingRequest {
     int64 id = 1;
 }
 message GetPackingResponse {
-    Packing packing = 1;
-    repeated EquipmentChecking equipment_checkings = 2;
+    int64 id = 1;
+    string fo_id = 2;
+    int32 line_id = 3;
+    int32 machine_id = 4;
+    int32 unit_id = 5;
+    int32 department_id = 6;
+    int32 area_id = 7;
+    string completed_at = 8;
+    int32 status = 9;
+    string createdAt = 10;
+    string updatedAt = 11;
+    repeated EquipmentChecking equipment_checkings = 12;
 }
 
 // FO
