@@ -5,7 +5,9 @@ import (
 	"errors"
 
 	"bff/pb/userpb"
+	"bff/utils"
 
+	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 )
@@ -38,15 +40,14 @@ type UserClient struct {
 }
 
 var (
-	_                     = loadLocalEnv()
-	userGrpcService       = GetEnv("USER_GRPC_SERVICE")
+	_                     = utils.LoadLocalEnv()
+	userGrpcService       = utils.GetEnv("USER_GRPC_SERVICE")
 	userGrpcServiceClient userpb.UserServiceClient
 )
 
 func prepareUserGrpcClient(c *context.Context) error {
-
 	// Prom: Get Registry & Metrics
-	reg, grpcMetrics := GetRegistryMetrics()
+	reg, grpcMetrics := utils.GetRegistryMetrics()
 	// Prom: Create a insecure gRPC channel to communicate with the server.
 	conn, err := grpc.DialContext(*c, userGrpcService, []grpc.DialOption{
 		grpc.WithInsecure(),
@@ -66,23 +67,70 @@ func prepareUserGrpcClient(c *context.Context) error {
 	}
 
 	// Prom
-	CreateStartPromHttpServer(reg, 9095)
+	utils.CreateStartPromHttpServer(reg, 9095)
 
 	userGrpcServiceClient = userpb.NewUserServiceClient(conn)
 	return nil
 }
 
-func (uc *UserClient) GetUserDetails(id string, c *context.Context) (*User, error) {
+func (uc *UserClient) Login(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
 
-	if err := prepareUserGrpcClient(c); err != nil {
-		return nil, err
-	}
-
-	res, err := userGrpcServiceClient.GetUserDetails(*c, &userpb.GetUserDetailsRequest{Id: id})
+	var req LoginRequest
+	err := c.BindJSON(&req)
 	if err != nil {
-		return nil, errors.New(status.Convert(err).Message())
+		utils.Response(c, nil, err)
+		return
 	}
-	return &User{
+
+	if err := prepareUserGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	res, err := userGrpcServiceClient.Login(ctx, &userpb.LoginRequest{Email: req.Email, Password: req.Password})
+	if err != nil {
+		utils.Response(c, nil, errors.New(status.Convert(err).Message()))
+	}
+
+	utils.Response(c, &UserWithToken{
+		User{Id: res.User.Id,
+			Name:         res.User.Name,
+			Email:        res.User.Email,
+			GroupId:      res.User.GroupId,
+			RoleId:       uint(res.User.RoleId),
+			RefineryId:   uint(res.User.RefineryId),
+			AreaId:       uint(res.User.AreaId),
+			DepartmentId: uint(res.User.DepartmentId),
+			CreatedAt:    res.User.CreatedAt,
+		}, res.Token,
+	}, nil)
+}
+
+func (uc *UserClient) GetUserDetails(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	// Get UserId from gin context after jwt auth
+	userId, ok := c.Get("UserId")
+	if !ok {
+		utils.Response(c, nil, errors.New("invalid user id in token"))
+		return
+	}
+
+	if err := prepareUserGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	res, err := userGrpcServiceClient.GetUserDetails(ctx, &userpb.GetUserDetailsRequest{Id: userId.(string)})
+	if err != nil {
+		utils.Response(c, nil, errors.New(status.Convert(err).Message()))
+		return
+	}
+
+	utils.Response(c, &User{
 		Id:           res.User.Id,
 		Name:         res.User.Name,
 		Email:        res.User.Email,
@@ -93,18 +141,22 @@ func (uc *UserClient) GetUserDetails(id string, c *context.Context) (*User, erro
 		AreaId:       uint(res.User.AreaId),
 		DepartmentId: uint(res.User.DepartmentId),
 		CreatedAt:    res.User.CreatedAt,
-	}, nil
+	}, err)
 }
 
-func (uc *UserClient) GetUsers(c *context.Context) (*[]User, error) {
+func (uc *UserClient) GetUsers(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
 
-	if err := prepareUserGrpcClient(c); err != nil {
-		return nil, err
+	if err := prepareUserGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
 	}
 
-	res, err := userGrpcServiceClient.GetUsers(*c, &userpb.GetUsersRequest{})
+	res, err := userGrpcServiceClient.GetUsers(ctx, &userpb.GetUsersRequest{})
 	if err != nil {
-		return nil, errors.New(status.Convert(err).Message())
+		utils.Response(c, nil, errors.New(status.Convert(err).Message()))
+		return
 	}
 
 	var users []User
@@ -121,30 +173,5 @@ func (uc *UserClient) GetUsers(c *context.Context) (*[]User, error) {
 			CreatedAt:    u.CreatedAt,
 		})
 	}
-	return &users, nil
-}
-
-func (uc *UserClient) Login(username string, password string, c *context.Context) (*UserWithToken, error) {
-
-	if err := prepareUserGrpcClient(c); err != nil {
-		return nil, err
-	}
-
-	res, err := userGrpcServiceClient.Login(*c, &userpb.LoginRequest{Email: username, Password: password})
-	if err != nil {
-		return nil, errors.New(status.Convert(err).Message())
-	}
-
-	return &UserWithToken{
-		User{Id: res.User.Id,
-			Name:         res.User.Name,
-			Email:        res.User.Email,
-			GroupId:      res.User.GroupId,
-			RoleId:       uint(res.User.RoleId),
-			RefineryId:   uint(res.User.RefineryId),
-			AreaId:       uint(res.User.AreaId),
-			DepartmentId: uint(res.User.DepartmentId),
-			CreatedAt:    res.User.CreatedAt,
-		}, res.Token,
-	}, nil
+	utils.Response(c, &users, nil)
 }

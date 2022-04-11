@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"bff/client"
+	"bff/utils"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +28,7 @@ func IsAuthenticated() gin.HandlerFunc {
 		}
 
 		jwtWrapper := JwtWrapper{
-			SecretKey: client.GetEnv("APP_JWT_SECRET"),
+			SecretKey: utils.GetEnv("APP_JWT_SECRET"),
 		}
 
 		claims, err := jwtWrapper.ValidateToken(clientToken)

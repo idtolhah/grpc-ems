@@ -1,4 +1,4 @@
-package client
+package utils
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func loadLocalEnv() interface{} {
+func LoadLocalEnv() interface{} {
 	_, runningInContainer := os.LookupEnv("CONTAINER")
 	log.Printf("runningInContainer:%v\n", runningInContainer)
 	if !runningInContainer {

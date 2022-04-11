@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"bff/client"
+	"bff/utils"
 	"encoding/json"
 	"log"
 	"strconv"
@@ -15,13 +15,13 @@ var (
 
 // Direct
 func GetCacheByKeyDirect(key string) interface{} {
-	db, err := strconv.Atoi(client.GetEnv("REDIS_DB"))
+	db, err := strconv.Atoi(utils.GetEnv("REDIS_DB"))
 	if err != nil {
 		log.Fatalln("Invalid db")
 	}
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     client.GetEnv("REDIS_HOST") + ":" + client.GetEnv("REDIS_PORT"),
-		Password: client.GetEnv("REDIS_PWD"),
+		Addr:     utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT"),
+		Password: utils.GetEnv("REDIS_PWD"),
 		DB:       db,
 	})
 

@@ -24,6 +24,7 @@ scrape_configs:
   #   static_configs:
   #     - targets: ['localhost:9090']
 
+  # Servers
   - job_name: 'grpcserver_master'
     scrape_interval: 1s
     metrics_path: /
@@ -33,7 +34,8 @@ scrape_configs:
     scrape_interval: 1s
     metrics_path: /
     static_configs:
-      - targets: ['host.docker.internal:8082']
+      - targets: ['host.docker.internal:9096']
+  # Clients
   - job_name: 'grpcclient_areas'
     scrape_interval: 1s
     metrics_path: /
@@ -54,3 +56,8 @@ scrape_configs:
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9095']
+  - job_name: 'grpcclient_packings'
+    scrape_interval: 1s
+    metrics_path: /
+    static_configs:
+      - targets: ['host.docker.internal:9097']

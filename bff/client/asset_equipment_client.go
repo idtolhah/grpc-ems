@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"bff/cache"
 	"bff/pb/masterpb"
+	"bff/utils"
 
+	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 )
@@ -26,15 +29,14 @@ type AssetEquipmentClient struct {
 }
 
 var (
-	_                               = loadLocalEnv()
-	assetEquipmentGrpcService       = GetEnv("MASTER_GRPC_SERVICE")
+	_                               = utils.LoadLocalEnv()
+	assetEquipmentGrpcService       = utils.GetEnv("MASTER_GRPC_SERVICE")
 	assetEquipmentGrpcServiceClient masterpb.MasterServiceClient
 )
 
 func prepareMasterGrpcClient(c *context.Context) error {
-
 	// Prom: Get Registry & Metrics
-	reg, grpcMetrics := GetRegistryMetrics()
+	reg, grpcMetrics := utils.GetRegistryMetrics()
 	// Prom: Create a insecure gRPC channel to communicate with the server.
 	conn, err := grpc.DialContext(*c, assetEquipmentGrpcService, []grpc.DialOption{
 		grpc.WithInsecure(),
@@ -54,21 +56,31 @@ func prepareMasterGrpcClient(c *context.Context) error {
 	}
 
 	// Prom
-	CreateStartPromHttpServer(reg, 9093)
+	utils.CreateStartPromHttpServer(reg, 9093)
 
 	assetEquipmentGrpcServiceClient = masterpb.NewMasterServiceClient(conn)
 	return nil
 }
 
-func (uc *AssetEquipmentClient) GetAssetEquipments(c *context.Context) (*[]AssetEquipment, error) {
+func (uc *AssetEquipmentClient) GetAssetEquipments(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
 
-	if err := prepareMasterGrpcClient(c); err != nil {
-		return nil, err
+	jsonData := cache.GetCacheByKeyDirect("asset-equipments")
+	if jsonData != nil && utils.GetEnv("USE_CACHE") == "yes" {
+		utils.Response(c, jsonData, nil)
+		return
 	}
 
-	res, err := assetEquipmentGrpcServiceClient.GetAssetEquipments(*c, &masterpb.GetAssetEquipmentsRequest{})
+	if err := prepareMasterGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	res, err := assetEquipmentGrpcServiceClient.GetAssetEquipments(ctx, &masterpb.GetAssetEquipmentsRequest{})
 	if err != nil {
-		return nil, errors.New(status.Convert(err).Message())
+		utils.Response(c, nil, errors.New(status.Convert(err).Message()))
+		return
 	}
 
 	var assetEquipments []AssetEquipment
@@ -85,5 +97,5 @@ func (uc *AssetEquipmentClient) GetAssetEquipments(c *context.Context) (*[]Asset
 			MachineID:      uint(u.MachineId),
 		})
 	}
-	return &assetEquipments, nil
+	utils.Response(c, &assetEquipments, nil)
 }

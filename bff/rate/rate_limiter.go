@@ -1,7 +1,7 @@
 package rate
 
 import (
-	"bff/client"
+	"bff/utils"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +22,7 @@ func RateLimiter() gin.HandlerFunc {
 	}
 
 	// Create a redis client.
-	option, err := libredis.ParseURL("redis://" + client.GetEnv("REDIS_HOST") + ":" + client.GetEnv("REDIS_PORT") + "/" + client.GetEnv("REDIS_DB"))
+	option, err := libredis.ParseURL("redis://" + utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT") + "/" + utils.GetEnv("REDIS_DB"))
 	if err != nil {
 		log.Fatal(err)
 		return nil

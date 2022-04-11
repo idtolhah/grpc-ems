@@ -47,12 +47,12 @@ func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsReques
 	defer cancel()
 
 	// Query: Start
-	var data []packingdb.Packing
+	var data []packingpb.Packing
 	results, err := db_client.Query("SELECT * FROM packings")
 	if err != nil {
 		return nil, err
 	}
-	var packing packingdb.Packing
+	var packing packingpb.Packing
 	for results.Next() {
 		err = results.Scan(
 			&packing.Id, &packing.FoId, &packing.LineId, &packing.MachineId, &packing.UnitId, &packing.DepartmentId,
@@ -82,25 +82,96 @@ func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsReques
 	return &res, nil
 }
 
-func (*server) CreatePacking(ctx context.Context, req *packingpb.CreatePackingRequest) (*packingpb.CreatePackingResponse, error) {
-	log.Println("Called Create Packing")
+func (*server) GetPacking(ctx context.Context, req *packingpb.GetPackingRequest) (*packingpb.GetPackingResponse, error) {
+	log.Println("Called GetPacking ", req.Id)
 
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	_, err := db_client.Exec(
+	// Query: Start
+	var packing packingpb.Packing
+	err := db_client.QueryRow("select * from packings where id=?", req.Id).Scan(&packing.Id)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	return &packingpb.GetPackingResponse{Packing: &packing, EquipmentCheckings: []*packingpb.EquipmentChecking{}}, nil
+}
+
+func (*server) CreatePacking(ctx context.Context, req *packingpb.CreatePackingRequest) (*packingpb.CreatePackingResponse, error) {
+	// log.Println("Called Create Packing")
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	res, err := db_client.Exec(
 		"insert into packings(fo_id, line_id, machine_id, status, unit_id, department_id, area_id, createdAt, updatedAt) values(?,?,?,?,?,?,?,?,?)",
 		req.UserId, req.LineId, req.MachineId, req.StatusSync, req.UnitId, req.DepartmentId, req.AreaId, req.ObservationDatetime, req.ObservationDatetime,
 	)
 
 	if err != nil {
-		return nil, utils.Error_response(err)
+		return nil, err
 	}
 
-	return &packingpb.CreatePackingResponse{
-		Id:   1,
-		Data: req,
-	}, nil
+	lastId, errId := res.LastInsertId()
+	if errId != nil {
+		return nil, errId
+	}
+
+	return &packingpb.CreatePackingResponse{Id: lastId}, nil
+}
+
+func (*server) CreateEquipmentChecking(ctx context.Context, req *packingpb.CreateEquipmentCheckingRequest) (*packingpb.CreateEquipmentCheckingResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var packing packingpb.Packing
+	err := db_client.QueryRow("select fo_id from packings where id=?", req.IdPackagingCheck).Scan(&packing.FoId)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	// Query: Start
+	res, err := db_client.Exec(
+		"insert into equipment_checkings(id_equipment_checking_list, packing_id, asset_equipment_id, fo_photo, fo_condition, fo_note, fo_id, createdAt, updatedAt) values(?,?,?,?,?,?,?,?,?)",
+		req.IdEquipmentCheckingList, req.IdPackagingCheck, req.IdAssetEquipment, req.Photo, req.Condition, req.Note, packing.FoId,
+		req.ObservationDatetime, req.ObservationDatetime,
+	)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	lastId, errId := res.LastInsertId()
+	if errId != nil {
+		return nil, errId
+	}
+
+	return &packingpb.CreateEquipmentCheckingResponse{Id: lastId}, nil
+}
+
+func (*server) UpdateEquipmentChecking(ctx context.Context, req *packingpb.UpdateEquipmentCheckingRequest) (*packingpb.UpdateEquipmentCheckingResponse, error) {
+	// log.Println("Called Create Packing")
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	res, err := db_client.Exec(
+		"update equipment_checkings set ao_conclusion=?, ao_note=?, ao_id=?, ao_created_at=?, updatedAt=? where id=?",
+		req.AoConclusion, req.AoNote, req.AoId, req.AoObservationDatetime, req.AoObservationDatetime, req.Id,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	lastId, errId := res.RowsAffected()
+	if errId != nil {
+		return nil, errId
+	}
+
+	return &packingpb.UpdateEquipmentCheckingResponse{Id: lastId}, nil
 }
 
 func init() {
@@ -127,7 +198,7 @@ func main() {
 	defer db_client.Close()
 
 	// Prom: Create a HTTP server for prometheus.
-	httpServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: fmt.Sprintf("0.0.0.0:%d", 8082)}
+	httpServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: fmt.Sprintf("0.0.0.0:%d", 9096)}
 
 	s := grpc.NewServer(
 		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),

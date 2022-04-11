@@ -1,23 +1,20 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"log"
 	"time"
 
 	allowlist "bff/allowlist"
 	"bff/auth"
-	"bff/cache"
 	"bff/client"
 	"bff/rate"
+	"bff/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	timeout                = 10 * time.Second
 	user_client            client.UserClient
 	area_client            client.AreaClient
 	contact_client         client.ContactClient
@@ -25,110 +22,18 @@ var (
 	packing_client         client.PackingClient
 )
 
-// Call controller functions
-// Users
-func GetUserDetails(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	userId, ok := c.Get("UserId") // Get UserId from gin context after jwt auth
-	if !ok {
-		client.Response(c, nil, errors.New("invalid user id in token"))
-		return
-	}
-
-	data, err := user_client.GetUserDetails(userId.(string), &ctx)
-	if err != nil {
-		client.Response(c, nil, err)
-		return
-	}
-
-	client.Response(c, data, err)
-}
-
-func Login(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	var req client.LoginRequest
-	err := c.BindJSON(&req)
-	if err != nil {
-		client.Response(c, nil, err)
-		return
-	}
-
-	data, err := user_client.Login(req.Email, req.Password, &ctx)
-	if err != nil {
-		client.Response(c, nil, err)
-		return
-	}
-
-	client.Response(c, data, err)
-}
-
-func GetUsers(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	data, err := user_client.GetUsers(&ctx)
-	client.Response(c, data, err)
-}
-
-// Master
-func GetAreas(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	jsonData := cache.GetCacheByKeyDirect("areas")
-	if jsonData != nil && client.GetEnv("USE_CACHE") == "yes" {
-		client.Response(c, jsonData, nil)
-		return
-	}
-
-	data, err := area_client.GetAreas(&ctx)
-	client.Response(c, data, err)
-}
-
-func GetContacts(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	jsonData := cache.GetCacheByKeyDirect("contacts")
-	if jsonData != nil && client.GetEnv("USE_CACHE") == "yes" {
-		client.Response(c, jsonData, nil)
-		return
-	}
-
-	data, err := contact_client.GetContacts(&ctx)
-	client.Response(c, data, err)
-}
-
-func GetAssetEquipments(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	jsonData := cache.GetCacheByKeyDirect("asset-equipments")
-	if jsonData != nil && client.GetEnv("USE_CACHE") == "yes" {
-		client.Response(c, jsonData, nil)
-		return
-	}
-
-	data, err := asset_equipment_client.GetAssetEquipments(&ctx)
-	client.Response(c, data, err)
-}
-
 // Main
 func main() {
 	log.Println("Bff Service")
 	r := gin.Default()
 
 	// enable rate limiter per ip address
-	if client.GetEnv("USE_RATE_LIMITER") == "yes" {
+	if utils.GetEnv("USE_RATE_LIMITER") == "yes" {
 		r.ForwardedByClientIP = true
 		r.Use(rate.RateLimiter())
 	}
 	// if need to specify serveral range of allowed sources, use comma to concatenate them
-	if client.GetEnv("USE_IP_ALLOWLISTING") == "yes" {
+	if utils.GetEnv("USE_IP_ALLOWLISTING") == "yes" {
 		r.Use(allowlist.CIDR("172.18.0.0/16, 127.0.0.1/32, 192.168.43.1/32"))
 	}
 
@@ -143,18 +48,20 @@ func main() {
 
 	api := r.Group("/api")
 	// Login
-	api.POST("/users/login", Login)
+	api.POST("/users/login", user_client.Login)
 	// Master
-	api.GET("/areas", GetAreas)
-	api.GET("/contacts", GetContacts)
-	api.GET("/asset-equipments", GetAssetEquipments)
+	api.GET("/areas", area_client.GetAreas)
+	api.GET("/contacts", contact_client.GetContacts)
+	api.GET("/asset-equipments", asset_equipment_client.GetAssetEquipments)
 
 	protected := api.Use(auth.IsAuthenticated())
 	// Users
-	protected.GET("/users", GetUsers)
-	protected.GET("/users/profile", GetUserDetails)
+	protected.GET("/users", user_client.GetUsers)
+	protected.GET("/users/profile", user_client.GetUserDetails)
 	// Packing
 	protected.POST("/packings", packing_client.CreatePacking)
+	protected.POST("/packings/:id/equipment-checkings", packing_client.CreateEquipmentChecking)
+	protected.PUT("/packings/:id/equipment-checkings/:ecid", packing_client.UpdateEquipmentChecking)
 
 	r.Run()
 }

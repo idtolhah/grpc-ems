@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"bff/cache"
 	"bff/pb/masterpb"
+	"bff/utils"
 
+	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 )
@@ -23,15 +26,15 @@ type ContactClient struct {
 }
 
 var (
-	_                        = loadLocalEnv()
-	contactGrpcService       = GetEnv("MASTER_GRPC_SERVICE")
+	_                        = utils.LoadLocalEnv()
+	contactGrpcService       = utils.GetEnv("MASTER_GRPC_SERVICE")
 	contactGrpcServiceClient masterpb.MasterServiceClient
 )
 
 func prepareContactGrpcClient(c *context.Context) error {
 
 	// Prom: Get Registry & Metrics
-	reg, grpcMetrics := GetRegistryMetrics()
+	reg, grpcMetrics := utils.GetRegistryMetrics()
 	// Prom: Create a insecure gRPC channel to communicate with the server.
 	conn, err := grpc.DialContext(*c, contactGrpcService, []grpc.DialOption{
 		grpc.WithInsecure(),
@@ -51,21 +54,31 @@ func prepareContactGrpcClient(c *context.Context) error {
 	}
 
 	// Prom
-	CreateStartPromHttpServer(reg, 9094)
+	utils.CreateStartPromHttpServer(reg, 9094)
 
 	contactGrpcServiceClient = masterpb.NewMasterServiceClient(conn)
 	return nil
 }
 
-func (uc *ContactClient) GetContacts(c *context.Context) (*[]Contact, error) {
+func (uc *ContactClient) GetContacts(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
 
-	if err := prepareContactGrpcClient(c); err != nil {
-		return nil, err
+	jsonData := cache.GetCacheByKeyDirect("contacts")
+	if jsonData != nil && utils.GetEnv("USE_CACHE") == "yes" {
+		utils.Response(c, jsonData, nil)
+		return
 	}
 
-	res, err := contactGrpcServiceClient.GetContacts(*c, &masterpb.GetContactsRequest{})
+	if err := prepareContactGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	res, err := contactGrpcServiceClient.GetContacts(ctx, &masterpb.GetContactsRequest{})
 	if err != nil {
-		return nil, errors.New(status.Convert(err).Message())
+		utils.Response(c, nil, errors.New(status.Convert(err).Message()))
+		return
 	}
 
 	var contacts []Contact
@@ -79,5 +92,5 @@ func (uc *ContactClient) GetContacts(c *context.Context) (*[]Contact, error) {
 			Email:  u.Email,
 		})
 	}
-	return &contacts, nil
+	utils.Response(c, &contacts, err)
 }

@@ -3,59 +3,33 @@ package client
 import (
 	"context"
 	"errors"
-	"time"
+	"strconv"
 
 	"bff/pb/packingpb"
+	"bff/utils"
 
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )
 
-type Packing struct {
-	Id           int64  `json:"id"`
-	FoId         string `json:"fo_id"`
-	LineId       int32  `json:"line_id"`
-	MachineId    int32  `json:"machine_id"`
-	UnitId       int32  `json:"unit_id"`
-	DepartmentId int32  `json:"department_id"`
-	AreaId       int32  `json:"area_id"`
-	CompletedAt  string `json:"completed_at"`
-	Status       int32  `json:"status"`
-	CreatedAt    string `json:"createdAt"`
-	UpdatedAt    string `json:"updatedAt"`
-}
-
-type CreatePackingRequest struct {
-	UserId              string `json:"user_id"`
-	LineId              int32  `json:"line_id"`
-	MachineId           int32  `json:"machine_id"`
-	StatusSync          int32  `json:"status_sync"`
-	ObservationDatetime string `json:"observation_datetime"`
-	UnitId              int32  `json:"unit_id"`
-	DepartmentId        int32  `json:"department_id"`
-	AreaId              int32  `json:"area_id"`
-}
-
 type PackingClient struct {
 }
 
 var (
-	timeout                  = 10 * time.Second
-	_                        = loadLocalEnv()
-	packingGrpcService       = GetEnv("PACKING_GRPC_SERVICE")
+	_                        = utils.LoadLocalEnv()
+	packingGrpcService       = utils.GetEnv("PACKING_GRPC_SERVICE")
 	packingGrpcServiceClient packingpb.PackingServiceClient
 )
 
 func preparePackingGrpcClient(c *context.Context) error {
-
 	// Prom: Get Registry & Metrics
-	// reg, grpcMetrics := GetRegistryMetrics()
+	reg, grpcMetrics := utils.GetRegistryMetrics()
 
 	// Prom: Create a insecure gRPC channel to communicate with the server.
 	conn, err := grpc.DialContext(*c, packingGrpcService, []grpc.DialOption{
 		grpc.WithInsecure(),
-		// grpc.WithUnaryInterceptor(grpcMetrics.UnaryClientInterceptor()),
-		// grpc.WithStreamInterceptor(grpcMetrics.StreamClientInterceptor()),
+		grpc.WithUnaryInterceptor(grpcMetrics.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(grpcMetrics.StreamClientInterceptor()),
 		grpc.WithBlock()}...,
 	)
 
@@ -70,7 +44,7 @@ func preparePackingGrpcClient(c *context.Context) error {
 	}
 
 	// Prom
-	// CreateStartPromHttpServer(reg, 9094)
+	utils.CreateStartPromHttpServer(reg, 9097)
 
 	packingGrpcServiceClient = packingpb.NewPackingServiceClient(conn)
 	return nil
@@ -81,31 +55,102 @@ func (ac *PackingClient) CreatePacking(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	var req CreatePackingRequest
+	var req packingpb.CreatePackingRequest
 	err := c.BindJSON(&req)
 	if err != nil {
-		Response(c, nil, err)
+		utils.Response(c, nil, err)
 		return
 	}
 
 	if err := preparePackingGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
 		return
 	}
 
-	data, err := packingGrpcServiceClient.CreatePacking(ctx, &packingpb.CreatePackingRequest{
-		UserId:              req.UserId,
-		LineId:              req.LineId,
-		MachineId:           req.MachineId,
-		StatusSync:          req.StatusSync,
-		UnitId:              req.UnitId,
-		DepartmentId:        req.DepartmentId,
-		AreaId:              req.AreaId,
-		ObservationDatetime: req.ObservationDatetime,
-	})
+	data, err := packingGrpcServiceClient.CreatePacking(
+		ctx,
+		&packingpb.CreatePackingRequest{
+			UserId: req.UserId, LineId: req.LineId, MachineId: req.MachineId, StatusSync: req.StatusSync, UnitId: req.UnitId,
+			DepartmentId: req.DepartmentId, AreaId: req.AreaId, ObservationDatetime: req.ObservationDatetime,
+		},
+	)
 
 	if err != nil {
+		utils.Response(c, nil, err)
 		return
 	}
 
-	Response(c, data, err)
+	utils.Response(c, data, err)
+}
+
+func (ac *PackingClient) CreateEquipmentChecking(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	var req packingpb.CreateEquipmentCheckingRequest
+	err := c.BindJSON(&req)
+	if err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	if err := preparePackingGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	data, err := packingGrpcServiceClient.CreateEquipmentChecking(
+		ctx,
+		&packingpb.CreateEquipmentCheckingRequest{
+			IdEquipmentCheckingList: req.IdEquipmentCheckingList, IdPackagingCheck: req.IdPackagingCheck,
+			IdAssetEquipment: req.IdAssetEquipment, Photo: req.Photo, Condition: req.Condition, Note: req.Note,
+			Status: req.Status, ObservationDatetime: req.ObservationDatetime,
+		},
+	)
+
+	if err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	utils.Response(c, data, err)
+}
+
+func (ac *PackingClient) UpdateEquipmentChecking(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	param, err := utils.GetParam(c, "ecid")
+	if err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	var req packingpb.UpdateEquipmentCheckingRequest
+	errReq := c.BindJSON(&req)
+	if errReq != nil {
+		utils.Response(c, nil, errReq)
+		return
+	}
+
+	if err := preparePackingGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	ecid, _ := strconv.Atoi(param)
+	data, err := packingGrpcServiceClient.UpdateEquipmentChecking(
+		ctx,
+		&packingpb.UpdateEquipmentCheckingRequest{
+			Id: int64(ecid), AoConclusion: req.AoConclusion, AoNote: req.AoNote, AoId: req.AoId,
+			AoObservationDatetime: req.AoObservationDatetime,
+		},
+	)
+
+	if err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	utils.Response(c, data, err)
 }
