@@ -42,7 +42,6 @@ type server struct {
 }
 
 func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsRequest) (*packingpb.GetPackingsResponse, error) {
-	// log.Println("Called GetPackings")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -83,8 +82,6 @@ func (*server) GetPackings(ctx context.Context, req *packingpb.GetPackingsReques
 }
 
 func (*server) GetPacking(ctx context.Context, req *packingpb.GetPackingRequest) (*packingpb.GetPackingResponse, error) {
-	log.Println("Called GetPacking ", req.Id)
-
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -100,7 +97,6 @@ func (*server) GetPacking(ctx context.Context, req *packingpb.GetPackingRequest)
 }
 
 func (*server) CreatePacking(ctx context.Context, req *packingpb.CreatePackingRequest) (*packingpb.CreatePackingResponse, error) {
-	// log.Println("Called Create Packing")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -153,7 +149,6 @@ func (*server) CreateEquipmentChecking(ctx context.Context, req *packingpb.Creat
 }
 
 func (*server) UpdateEquipmentChecking(ctx context.Context, req *packingpb.UpdateEquipmentCheckingRequest) (*packingpb.UpdateEquipmentCheckingResponse, error) {
-	// log.Println("Called Create Packing")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 

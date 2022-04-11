@@ -32,7 +32,6 @@ var (
 )
 
 func prepareContactGrpcClient(c *context.Context) error {
-
 	// Prom: Get Registry & Metrics
 	reg, grpcMetrics := utils.GetRegistryMetrics()
 	// Prom: Create a insecure gRPC channel to communicate with the server.

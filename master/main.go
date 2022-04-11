@@ -44,7 +44,6 @@ type server struct {
 }
 
 func (*server) GetAreas(ctx context.Context, req *masterpb.GetAreasRequest) (*masterpb.GetAreasResponse, error) {
-	// log.Println("Called GetAreas")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -78,7 +77,6 @@ func (*server) GetAreas(ctx context.Context, req *masterpb.GetAreasRequest) (*ma
 }
 
 func (*server) GetAssetEquipments(ctx context.Context, req *masterpb.GetAssetEquipmentsRequest) (*masterpb.GetAssetEquipmentsResponse, error) {
-	// log.Println("Called GetAssetEquipments")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -112,7 +110,6 @@ func (*server) GetAssetEquipments(ctx context.Context, req *masterpb.GetAssetEqu
 }
 
 func (*server) GetContacts(ctx context.Context, req *masterpb.GetContactsRequest) (*masterpb.GetContactsResponse, error) {
-	// log.Println("Called GetContacts")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 

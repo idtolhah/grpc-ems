@@ -51,7 +51,6 @@ func preparePackingGrpcClient(c *context.Context) error {
 }
 
 func (ac *PackingClient) CreatePacking(c *gin.Context) {
-
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
