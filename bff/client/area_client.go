@@ -84,3 +84,23 @@ func (uc *AreaClient) GetAreas(c *gin.Context) {
 	}
 	utils.Response(c, &areas, nil)
 }
+
+func (uc *AreaClient) GetArea(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	id, _ := utils.GetParam(c, "id")
+
+	if err := prepareAreaGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	res, err := areaGrpcServiceClient.GetArea(c, &masterpb.GetAreaRequest{Id: id})
+	if err != nil {
+		utils.Response(c, nil, errors.New(status.Convert(err).Message()))
+		return
+	}
+
+	utils.Response(c, res.Area, nil)
+}

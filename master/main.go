@@ -43,6 +43,105 @@ type server struct {
 	masterpb.UnimplementedMasterServiceServer
 }
 
+// Unit
+func (*server) GetUnits(ctx context.Context, req *masterpb.GetUnitsRequest) (*masterpb.GetUnitsResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var data []masterpb.Unit
+	results, err := db_client.Query("SELECT id, name FROM refineries")
+	if err != nil {
+		return nil, err
+	}
+	var unit masterpb.Unit
+	for results.Next() {
+		err = results.Scan(&unit.Id, &unit.Name)
+		if err != nil {
+			panic(err.Error())
+		}
+		data = append(data, unit)
+	}
+	// Query: End
+
+	var res masterpb.GetUnitsResponse
+	for _, d := range data {
+		res.Units = append(res.Units, &masterpb.Unit{Id: int32(d.Id), Name: d.Name})
+	}
+
+	go func() {
+		stringData, _ := json.Marshal(res.Units)
+		redis.SendToRedisCacheDirect("units", string(stringData))
+	}()
+
+	return &res, nil
+}
+
+func (*server) GetUnit(ctx context.Context, req *masterpb.GetUnitRequest) (*masterpb.GetUnitResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var unit masterpb.Unit
+	err := db_client.QueryRow(`SELECT id, name FROM refineries WHERE id=?`, req.Id).Scan(&unit.Id, &unit.Name)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	return &masterpb.GetUnitResponse{Unit: &masterpb.Unit{Id: unit.Id, Name: unit.Name}}, nil
+}
+
+// Department
+func (*server) GetDepartments(ctx context.Context, req *masterpb.GetDepartmentsRequest) (*masterpb.GetDepartmentsResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var data []masterpb.Department
+	results, err := db_client.Query("SELECT id, name FROM departments")
+	if err != nil {
+		return nil, err
+	}
+	var department masterpb.Department
+	for results.Next() {
+		err = results.Scan(&department.Id, &department.Name)
+		if err != nil {
+			panic(err.Error())
+		}
+		data = append(data, department)
+	}
+	// Query: End
+
+	var res masterpb.GetDepartmentsResponse
+	for _, d := range data {
+		res.Departments = append(res.Departments, &masterpb.Department{Id: int32(d.Id), Name: d.Name})
+	}
+
+	go func() {
+		stringData, _ := json.Marshal(res.Departments)
+		redis.SendToRedisCacheDirect("departments", string(stringData))
+	}()
+
+	return &res, nil
+}
+
+func (*server) GetDepartment(ctx context.Context, req *masterpb.GetDepartmentRequest) (*masterpb.GetDepartmentResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var department masterpb.Department
+	err := db_client.QueryRow(`SELECT id, name FROM departments WHERE id=?`, req.Id).Scan(&department.Id, &department.Name)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	return &masterpb.GetDepartmentResponse{Department: &masterpb.Department{Id: department.Id, Name: department.Name}}, nil
+}
+
+// Area
 func (*server) GetAreas(ctx context.Context, req *masterpb.GetAreasRequest) (*masterpb.GetAreasResponse, error) {
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
@@ -76,6 +175,120 @@ func (*server) GetAreas(ctx context.Context, req *masterpb.GetAreasRequest) (*ma
 	return &res, nil
 }
 
+func (*server) GetArea(ctx context.Context, req *masterpb.GetAreaRequest) (*masterpb.GetAreaResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var area masterpb.Area
+	err := db_client.QueryRow(`SELECT id, name FROM areas WHERE id=?`, req.Id).Scan(&area.Id, &area.Name)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	return &masterpb.GetAreaResponse{Area: &masterpb.Area{Id: area.Id, Name: area.Name}}, nil
+}
+
+// Line
+func (*server) GetLines(ctx context.Context, req *masterpb.GetLinesRequest) (*masterpb.GetLinesResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var data []masterpb.Line
+	results, err := db_client.Query("SELECT id, name FROM liness")
+	if err != nil {
+		return nil, err
+	}
+	var line masterpb.Line
+	for results.Next() {
+		err = results.Scan(&line.Id, &line.Name)
+		if err != nil {
+			panic(err.Error())
+		}
+		data = append(data, line)
+	}
+	// Query: End
+
+	var res masterpb.GetLinesResponse
+	for _, d := range data {
+		res.Lines = append(res.Lines, &masterpb.Line{Id: int32(d.Id), Name: d.Name})
+	}
+
+	go func() {
+		stringData, _ := json.Marshal(res.Lines)
+		redis.SendToRedisCacheDirect("lines", string(stringData))
+	}()
+
+	return &res, nil
+}
+
+func (*server) GetLine(ctx context.Context, req *masterpb.GetLineRequest) (*masterpb.GetLineResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var line masterpb.Line
+	err := db_client.QueryRow(`SELECT id, name FROM liness WHERE id=?`, req.Id).Scan(&line.Id, &line.Name)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	return &masterpb.GetLineResponse{Line: &masterpb.Line{Id: line.Id, Name: line.Name}}, nil
+}
+
+// Machine
+func (*server) GetMachines(ctx context.Context, req *masterpb.GetMachinesRequest) (*masterpb.GetMachinesResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var data []masterpb.Machine
+	results, err := db_client.Query("SELECT id, name FROM machines")
+	if err != nil {
+		return nil, err
+	}
+	var machine masterpb.Machine
+	for results.Next() {
+		err = results.Scan(&machine.Id, &machine.Name)
+		if err != nil {
+			panic(err.Error())
+		}
+		data = append(data, machine)
+	}
+	// Query: End
+
+	var res masterpb.GetMachinesResponse
+	for _, d := range data {
+		res.Machines = append(res.Machines, &masterpb.Machine{Id: int32(d.Id), Name: d.Name})
+	}
+
+	go func() {
+		stringData, _ := json.Marshal(res.Machines)
+		redis.SendToRedisCacheDirect("machines", string(stringData))
+	}()
+
+	return &res, nil
+}
+
+func (*server) GetMachine(ctx context.Context, req *masterpb.GetMachineRequest) (*masterpb.GetMachineResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var machine masterpb.Machine
+	err := db_client.QueryRow(`SELECT id, name FROM machines WHERE id=?`, req.Id).Scan(&machine.Id, &machine.Name)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	return &masterpb.GetMachineResponse{Machine: &masterpb.Machine{Id: machine.Id, Name: machine.Name}}, nil
+}
+
+// Asset Equipment
 func (*server) GetAssetEquipments(ctx context.Context, req *masterpb.GetAssetEquipmentsRequest) (*masterpb.GetAssetEquipmentsResponse, error) {
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
@@ -109,6 +322,30 @@ func (*server) GetAssetEquipments(ctx context.Context, req *masterpb.GetAssetEqu
 	return &res, nil
 }
 
+func (*server) GetAssetEquipment(ctx context.Context, req *masterpb.GetAssetEquipmentRequest) (*masterpb.GetAssetEquipmentResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Query: Start
+	var assetEquipment masterpb.AssetEquipment
+	err := db_client.QueryRow(`SELECT id, item, item_check, checking_method, line_id, machine_id, standard_area, tools, photo FROM asset_equipments WHERE id=?`, req.Id).Scan(
+		&assetEquipment.Id, &assetEquipment.Item, &assetEquipment.ItemCheck, &assetEquipment.CheckingMethod,
+		&assetEquipment.LineId, &assetEquipment.MachineId, &assetEquipment.StandardArea, &assetEquipment.Tools,
+		&assetEquipment.Photo,
+	)
+	if err != nil {
+		return nil, err
+	}
+	// Query: End
+
+	return &masterpb.GetAssetEquipmentResponse{Assetequipment: &masterpb.AssetEquipment{
+		Id: assetEquipment.Id, Item: assetEquipment.Item, ItemCheck: assetEquipment.ItemCheck, CheckingMethod: assetEquipment.CheckingMethod,
+		LineId: assetEquipment.LineId, MachineId: assetEquipment.MachineId, StandardArea: assetEquipment.StandardArea,
+		Tools: assetEquipment.Tools, Photo: assetEquipment.Photo,
+	}}, nil
+}
+
+// Contact
 func (*server) GetContacts(ctx context.Context, req *masterpb.GetContactsRequest) (*masterpb.GetContactsResponse, error) {
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()

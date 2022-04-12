@@ -18,8 +18,18 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MasterServiceClient interface {
+	GetUnits(ctx context.Context, in *GetUnitsRequest, opts ...grpc.CallOption) (*GetUnitsResponse, error)
+	GetUnit(ctx context.Context, in *GetUnitRequest, opts ...grpc.CallOption) (*GetUnitResponse, error)
+	GetDepartments(ctx context.Context, in *GetDepartmentsRequest, opts ...grpc.CallOption) (*GetDepartmentsResponse, error)
+	GetDepartment(ctx context.Context, in *GetDepartmentRequest, opts ...grpc.CallOption) (*GetDepartmentResponse, error)
 	GetAreas(ctx context.Context, in *GetAreasRequest, opts ...grpc.CallOption) (*GetAreasResponse, error)
+	GetArea(ctx context.Context, in *GetAreaRequest, opts ...grpc.CallOption) (*GetAreaResponse, error)
+	GetLines(ctx context.Context, in *GetLinesRequest, opts ...grpc.CallOption) (*GetLinesResponse, error)
+	GetLine(ctx context.Context, in *GetLineRequest, opts ...grpc.CallOption) (*GetLineResponse, error)
+	GetMachines(ctx context.Context, in *GetMachinesRequest, opts ...grpc.CallOption) (*GetMachinesResponse, error)
+	GetMachine(ctx context.Context, in *GetMachineRequest, opts ...grpc.CallOption) (*GetMachineResponse, error)
 	GetAssetEquipments(ctx context.Context, in *GetAssetEquipmentsRequest, opts ...grpc.CallOption) (*GetAssetEquipmentsResponse, error)
+	GetAssetEquipment(ctx context.Context, in *GetAssetEquipmentRequest, opts ...grpc.CallOption) (*GetAssetEquipmentResponse, error)
 	GetContacts(ctx context.Context, in *GetContactsRequest, opts ...grpc.CallOption) (*GetContactsResponse, error)
 }
 
@@ -31,6 +41,42 @@ func NewMasterServiceClient(cc grpc.ClientConnInterface) MasterServiceClient {
 	return &masterServiceClient{cc}
 }
 
+func (c *masterServiceClient) GetUnits(ctx context.Context, in *GetUnitsRequest, opts ...grpc.CallOption) (*GetUnitsResponse, error) {
+	out := new(GetUnitsResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetUnits", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetUnit(ctx context.Context, in *GetUnitRequest, opts ...grpc.CallOption) (*GetUnitResponse, error) {
+	out := new(GetUnitResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetUnit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetDepartments(ctx context.Context, in *GetDepartmentsRequest, opts ...grpc.CallOption) (*GetDepartmentsResponse, error) {
+	out := new(GetDepartmentsResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetDepartments", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetDepartment(ctx context.Context, in *GetDepartmentRequest, opts ...grpc.CallOption) (*GetDepartmentResponse, error) {
+	out := new(GetDepartmentResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetDepartment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *masterServiceClient) GetAreas(ctx context.Context, in *GetAreasRequest, opts ...grpc.CallOption) (*GetAreasResponse, error) {
 	out := new(GetAreasResponse)
 	err := c.cc.Invoke(ctx, "/master.MasterService/GetAreas", in, out, opts...)
@@ -40,9 +86,63 @@ func (c *masterServiceClient) GetAreas(ctx context.Context, in *GetAreasRequest,
 	return out, nil
 }
 
+func (c *masterServiceClient) GetArea(ctx context.Context, in *GetAreaRequest, opts ...grpc.CallOption) (*GetAreaResponse, error) {
+	out := new(GetAreaResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetArea", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetLines(ctx context.Context, in *GetLinesRequest, opts ...grpc.CallOption) (*GetLinesResponse, error) {
+	out := new(GetLinesResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetLines", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetLine(ctx context.Context, in *GetLineRequest, opts ...grpc.CallOption) (*GetLineResponse, error) {
+	out := new(GetLineResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetLine", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetMachines(ctx context.Context, in *GetMachinesRequest, opts ...grpc.CallOption) (*GetMachinesResponse, error) {
+	out := new(GetMachinesResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetMachines", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetMachine(ctx context.Context, in *GetMachineRequest, opts ...grpc.CallOption) (*GetMachineResponse, error) {
+	out := new(GetMachineResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetMachine", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *masterServiceClient) GetAssetEquipments(ctx context.Context, in *GetAssetEquipmentsRequest, opts ...grpc.CallOption) (*GetAssetEquipmentsResponse, error) {
 	out := new(GetAssetEquipmentsResponse)
 	err := c.cc.Invoke(ctx, "/master.MasterService/GetAssetEquipments", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) GetAssetEquipment(ctx context.Context, in *GetAssetEquipmentRequest, opts ...grpc.CallOption) (*GetAssetEquipmentResponse, error) {
+	out := new(GetAssetEquipmentResponse)
+	err := c.cc.Invoke(ctx, "/master.MasterService/GetAssetEquipment", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,8 +162,18 @@ func (c *masterServiceClient) GetContacts(ctx context.Context, in *GetContactsRe
 // All implementations must embed UnimplementedMasterServiceServer
 // for forward compatibility
 type MasterServiceServer interface {
+	GetUnits(context.Context, *GetUnitsRequest) (*GetUnitsResponse, error)
+	GetUnit(context.Context, *GetUnitRequest) (*GetUnitResponse, error)
+	GetDepartments(context.Context, *GetDepartmentsRequest) (*GetDepartmentsResponse, error)
+	GetDepartment(context.Context, *GetDepartmentRequest) (*GetDepartmentResponse, error)
 	GetAreas(context.Context, *GetAreasRequest) (*GetAreasResponse, error)
+	GetArea(context.Context, *GetAreaRequest) (*GetAreaResponse, error)
+	GetLines(context.Context, *GetLinesRequest) (*GetLinesResponse, error)
+	GetLine(context.Context, *GetLineRequest) (*GetLineResponse, error)
+	GetMachines(context.Context, *GetMachinesRequest) (*GetMachinesResponse, error)
+	GetMachine(context.Context, *GetMachineRequest) (*GetMachineResponse, error)
 	GetAssetEquipments(context.Context, *GetAssetEquipmentsRequest) (*GetAssetEquipmentsResponse, error)
+	GetAssetEquipment(context.Context, *GetAssetEquipmentRequest) (*GetAssetEquipmentResponse, error)
 	GetContacts(context.Context, *GetContactsRequest) (*GetContactsResponse, error)
 	mustEmbedUnimplementedMasterServiceServer()
 }
@@ -72,11 +182,41 @@ type MasterServiceServer interface {
 type UnimplementedMasterServiceServer struct {
 }
 
+func (UnimplementedMasterServiceServer) GetUnits(context.Context, *GetUnitsRequest) (*GetUnitsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUnits not implemented")
+}
+func (UnimplementedMasterServiceServer) GetUnit(context.Context, *GetUnitRequest) (*GetUnitResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUnit not implemented")
+}
+func (UnimplementedMasterServiceServer) GetDepartments(context.Context, *GetDepartmentsRequest) (*GetDepartmentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDepartments not implemented")
+}
+func (UnimplementedMasterServiceServer) GetDepartment(context.Context, *GetDepartmentRequest) (*GetDepartmentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDepartment not implemented")
+}
 func (UnimplementedMasterServiceServer) GetAreas(context.Context, *GetAreasRequest) (*GetAreasResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAreas not implemented")
 }
+func (UnimplementedMasterServiceServer) GetArea(context.Context, *GetAreaRequest) (*GetAreaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArea not implemented")
+}
+func (UnimplementedMasterServiceServer) GetLines(context.Context, *GetLinesRequest) (*GetLinesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLines not implemented")
+}
+func (UnimplementedMasterServiceServer) GetLine(context.Context, *GetLineRequest) (*GetLineResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLine not implemented")
+}
+func (UnimplementedMasterServiceServer) GetMachines(context.Context, *GetMachinesRequest) (*GetMachinesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMachines not implemented")
+}
+func (UnimplementedMasterServiceServer) GetMachine(context.Context, *GetMachineRequest) (*GetMachineResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMachine not implemented")
+}
 func (UnimplementedMasterServiceServer) GetAssetEquipments(context.Context, *GetAssetEquipmentsRequest) (*GetAssetEquipmentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAssetEquipments not implemented")
+}
+func (UnimplementedMasterServiceServer) GetAssetEquipment(context.Context, *GetAssetEquipmentRequest) (*GetAssetEquipmentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAssetEquipment not implemented")
 }
 func (UnimplementedMasterServiceServer) GetContacts(context.Context, *GetContactsRequest) (*GetContactsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContacts not implemented")
@@ -92,6 +232,78 @@ type UnsafeMasterServiceServer interface {
 
 func RegisterMasterServiceServer(s grpc.ServiceRegistrar, srv MasterServiceServer) {
 	s.RegisterService(&MasterService_ServiceDesc, srv)
+}
+
+func _MasterService_GetUnits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUnitsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetUnits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetUnits",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetUnits(ctx, req.(*GetUnitsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetUnit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUnitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetUnit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetUnit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetUnit(ctx, req.(*GetUnitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetDepartments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDepartmentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetDepartments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetDepartments",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetDepartments(ctx, req.(*GetDepartmentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetDepartment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDepartmentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetDepartment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetDepartment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetDepartment(ctx, req.(*GetDepartmentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _MasterService_GetAreas_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -112,6 +324,96 @@ func _MasterService_GetAreas_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MasterService_GetArea_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAreaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetArea(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetArea",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetArea(ctx, req.(*GetAreaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetLines_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLinesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetLines(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetLines",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetLines(ctx, req.(*GetLinesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetLine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLineRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetLine(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetLine",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetLine(ctx, req.(*GetLineRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetMachines_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMachinesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetMachines(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetMachines",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetMachines(ctx, req.(*GetMachinesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetMachine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMachineRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetMachine(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetMachine",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetMachine(ctx, req.(*GetMachineRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MasterService_GetAssetEquipments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAssetEquipmentsRequest)
 	if err := dec(in); err != nil {
@@ -126,6 +428,24 @@ func _MasterService_GetAssetEquipments_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MasterServiceServer).GetAssetEquipments(ctx, req.(*GetAssetEquipmentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_GetAssetEquipment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAssetEquipmentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).GetAssetEquipment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/master.MasterService/GetAssetEquipment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).GetAssetEquipment(ctx, req.(*GetAssetEquipmentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -156,12 +476,52 @@ var MasterService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MasterServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetUnits",
+			Handler:    _MasterService_GetUnits_Handler,
+		},
+		{
+			MethodName: "GetUnit",
+			Handler:    _MasterService_GetUnit_Handler,
+		},
+		{
+			MethodName: "GetDepartments",
+			Handler:    _MasterService_GetDepartments_Handler,
+		},
+		{
+			MethodName: "GetDepartment",
+			Handler:    _MasterService_GetDepartment_Handler,
+		},
+		{
 			MethodName: "GetAreas",
 			Handler:    _MasterService_GetAreas_Handler,
 		},
 		{
+			MethodName: "GetArea",
+			Handler:    _MasterService_GetArea_Handler,
+		},
+		{
+			MethodName: "GetLines",
+			Handler:    _MasterService_GetLines_Handler,
+		},
+		{
+			MethodName: "GetLine",
+			Handler:    _MasterService_GetLine_Handler,
+		},
+		{
+			MethodName: "GetMachines",
+			Handler:    _MasterService_GetMachines_Handler,
+		},
+		{
+			MethodName: "GetMachine",
+			Handler:    _MasterService_GetMachine_Handler,
+		},
+		{
 			MethodName: "GetAssetEquipments",
 			Handler:    _MasterService_GetAssetEquipments_Handler,
+		},
+		{
+			MethodName: "GetAssetEquipment",
+			Handler:    _MasterService_GetAssetEquipment_Handler,
 		},
 		{
 			MethodName: "GetContacts",

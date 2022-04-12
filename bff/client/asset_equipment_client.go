@@ -99,3 +99,23 @@ func (uc *AssetEquipmentClient) GetAssetEquipments(c *gin.Context) {
 	}
 	utils.Response(c, &assetEquipments, nil)
 }
+
+func (uc *AssetEquipmentClient) GetAssetEquipment(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	id, _ := utils.GetParam(c, "id")
+
+	if err := prepareMasterGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	res, err := assetEquipmentGrpcServiceClient.GetAssetEquipment(c, &masterpb.GetAssetEquipmentRequest{Id: id})
+	if err != nil {
+		utils.Response(c, nil, errors.New(status.Convert(err).Message()))
+		return
+	}
+
+	utils.Response(c, res.Assetequipment, nil)
+}

@@ -16,7 +16,11 @@ import (
 
 var (
 	user_client            client.UserClient
+	unit_client            client.UnitClient
+	department_client      client.DepartmentClient
 	area_client            client.AreaClient
+	line_client            client.LineClient
+	machine_client         client.MachineClient
 	contact_client         client.ContactClient
 	asset_equipment_client client.AssetEquipmentClient
 	packing_client         client.PackingClient
@@ -46,24 +50,36 @@ func main() {
 		MaxAge:        24 * time.Hour,
 	}))
 
+	r.GET("/")
+
 	api := r.Group("/api")
 	// Login
 	api.POST("/users/login", user_client.Login)
 	// Master
+	api.GET("/units", unit_client.GetUnits)
+	api.GET("/units/:id", unit_client.GetUnit)
+	api.GET("/departments", department_client.GetDepartments)
+	api.GET("/departments/:id", department_client.GetDepartment)
 	api.GET("/areas", area_client.GetAreas)
-	api.GET("/contacts", contact_client.GetContacts)
+	api.GET("/areas/:id", area_client.GetArea)
+	api.GET("/lines", line_client.GetLines)
+	api.GET("/lines/:id", line_client.GetLine)
+	api.GET("/machines", machine_client.GetMachines)
+	api.GET("/machines/:id", machine_client.GetMachine)
 	api.GET("/asset-equipments", asset_equipment_client.GetAssetEquipments)
+	api.GET("/asset-equipments/:id", asset_equipment_client.GetAssetEquipment)
+	api.GET("/contacts", contact_client.GetContacts)
+	// Packing
+	api.GET("/packings", packing_client.GetPackings)
+	api.GET("/packings/:id", packing_client.GetPacking)
+	api.POST("/packings", packing_client.CreatePacking)
+	api.POST("/packings/:id/equipment-checkings", packing_client.CreateEquipmentChecking)
+	api.PUT("/packings/:id/equipment-checkings/:ecid", packing_client.UpdateEquipmentChecking)
 
 	protected := api.Use(auth.IsAuthenticated())
 	// Users
 	protected.GET("/users", user_client.GetUsers)
 	protected.GET("/users/profile", user_client.GetUserDetails)
-	// Packing
-	protected.GET("/packings", packing_client.GetPackings)
-	protected.GET("/packings/:id", packing_client.GetPacking)
-	protected.POST("/packings", packing_client.CreatePacking)
-	protected.POST("/packings/:id/equipment-checkings", packing_client.CreateEquipmentChecking)
-	protected.PUT("/packings/:id/equipment-checkings/:ecid", packing_client.UpdateEquipmentChecking)
 
 	r.Run()
 }
