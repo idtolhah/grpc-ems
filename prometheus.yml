@@ -30,34 +30,44 @@ scrape_configs:
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9091']
-  - job_name: 'grpcserver_packing'
+  - job_name: 'grpcserver_packing_query'
     scrape_interval: 1s
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9096']
+  - job_name: 'grpcserver_packing_cmd'
+    scrape_interval: 1s
+    metrics_path: /
+    static_configs:
+      - targets: ['host.docker.internal:9098']
   # Clients
-  - job_name: 'grpcclient_areas'
+  - job_name: 'grpcclient_areas_query'
     scrape_interval: 1s
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9092']
-  - job_name: 'grpcclient_asset_equipments'
+  - job_name: 'grpcclient_asset_equipments_query'
     scrape_interval: 1s
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9093']
-  - job_name: 'grpcclient_contacts'
+  - job_name: 'grpcclient_contacts_query'
     scrape_interval: 1s
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9094']
-  - job_name: 'grpcclient_users'
+  - job_name: 'grpcclient_users_query'
     scrape_interval: 1s
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9095']
-  - job_name: 'grpcclient_packings'
+  - job_name: 'grpcclient_packing_query'
     scrape_interval: 1s
     metrics_path: /
     static_configs:
       - targets: ['host.docker.internal:9097']
+  - job_name: 'grpcclient_packing_cmd'
+    scrape_interval: 1s
+    metrics_path: /
+    static_configs:
+      - targets: ['host.docker.internal:9099']

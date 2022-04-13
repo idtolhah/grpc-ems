@@ -1,17 +1,5 @@
-version: '3.7'
+version: '3'
 services:
-  mongo:
-    # container_name: mongo
-    ports:
-      - '27017:27017'
-    volumes:
-      - '/Users/tolhah/Documents/Projects/000DATABASE/mongo:/data/db'
-    image: mongo
-    networks:
-      default:
-        aliases:
-          - my-network
-  
   mysql-master:
     image: mariadb:10.5.8
     container_name: mysql-master
@@ -55,25 +43,3 @@ services:
       default:
         aliases:
           - my-network
-  
-  redis:
-    # container_name: redis
-    ports:
-      - '6379:6379'
-    image: redis
-    networks:
-      default:
-        aliases:
-          - my-network
-  
-  prometheus:
-    container_name: prometheus
-    ports:
-      - '9090:9090'
-    volumes:
-      - '/Users/tolhah/Documents/Research/Golang/grpc-ems-2/prometheus.yml:/etc/prometheus/prometheus.yml'
-    image: prom/prometheus
-
-# networks:
-#   my-network:
-#     # driver: bridge

@@ -23,7 +23,8 @@ var (
 	machine_client         client.MachineClient
 	contact_client         client.ContactClient
 	asset_equipment_client client.AssetEquipmentClient
-	packing_client         client.PackingClient
+	packing_query_client   client.PackingQueryClient
+	packing_cmd_client     client.PackingCmdClient
 )
 
 // Main
@@ -70,11 +71,11 @@ func main() {
 	api.GET("/asset-equipments/:id", asset_equipment_client.GetAssetEquipment)
 	api.GET("/contacts", contact_client.GetContacts)
 	// Packing
-	api.GET("/packings", packing_client.GetPackings)
-	api.GET("/packings/:id", packing_client.GetPacking)
-	api.POST("/packings", packing_client.CreatePacking)
-	api.POST("/packings/:id/equipment-checkings", packing_client.CreateEquipmentChecking)
-	api.PUT("/packings/:id/equipment-checkings/:ecid", packing_client.UpdateEquipmentChecking)
+	api.GET("/packings", packing_query_client.GetPackings)
+	api.GET("/packings/:id", packing_query_client.GetPacking)
+	api.POST("/packings", packing_cmd_client.CreatePacking)
+	api.POST("/packings/:id/equipment-checkings", packing_cmd_client.CreateEquipmentChecking)
+	api.PUT("/packings/:id/equipment-checkings/:ecid", packing_cmd_client.UpdateEquipmentChecking)
 
 	protected := api.Use(auth.IsAuthenticated())
 	// Users

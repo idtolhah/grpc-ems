@@ -1,17 +1,21 @@
 #!/bin/bash
-cd user
+cd user-query
 go run main.go & P1=$!
 cd ..
 
-cd master
+cd master-query
 go run main.go & P2=$!
 cd ..
 
-cd packing
+cd packing-query
 go run main.go & P3=$!
 cd ..
 
-cd bff
+cd packing-cmd
 go run main.go & P4=$!
+cd ..
 
-wait $P1 $P2 $P3 $P4
+cd bff
+go run main.go & P5=$!
+
+wait $P1 $P2 $P3 $P4 $P5

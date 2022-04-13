@@ -1,2 +1,4 @@
 .dbdata
 .DS_Store
+master/data
+slave/data
