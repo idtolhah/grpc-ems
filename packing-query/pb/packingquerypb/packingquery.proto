@@ -7,14 +7,6 @@ message Unit {
     int32 id = 1;
     string name = 2;
 }
-message Department {
-    int32 id = 1;
-    string name = 2;
-}
-message Area {
-    int32 id = 1;
-    string name = 2;
-}
 message Line {
     int32 id = 1;
     string name = 2;
@@ -38,10 +30,8 @@ message Packing {
     string updatedAt = 11;
     repeated EquipmentChecking equipment_checkings = 12;
     Unit unit = 13;
-    Department department = 14;
-    Area area = 15;
-    Line line = 16;
-    Machine machine = 17;
+    Line line = 14;
+    Machine machine = 15;
 }
 
 message EquipmentChecking {
@@ -96,8 +86,18 @@ message GetPackingRequest {
     int64 id = 1;
 }
 message GetPackingResponse {
-    Packing packing = 1;
-    repeated EquipmentChecking equipment_checkings = 2;
+    int64 id = 1;
+    string fo_id = 2;
+    int32 line_id = 3;
+    int32 machine_id = 4;
+    int32 unit_id = 5;
+    int32 department_id = 6;
+    int32 area_id = 7;
+    string completed_at = 8;
+    int32 status = 9;
+    string createdAt = 10;
+    string updatedAt = 11;
+    repeated EquipmentChecking equipment_checkings = 12;
 }
 
 service PackingQueryService {
