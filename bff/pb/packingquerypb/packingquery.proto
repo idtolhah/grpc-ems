@@ -3,6 +3,19 @@ syntax = "proto3";
 package packingquerypb;
 option go_package = "./packingquerypb";
 
+message Unit {
+    int32 id = 1;
+    string name = 2;
+}
+message Line {
+    int32 id = 1;
+    string name = 2;
+}
+message Machine {
+    int32 id = 1;
+    string name = 2;
+}
+
 message Packing {
     int64 id = 1;
     string fo_id = 2;
@@ -16,6 +29,9 @@ message Packing {
     string createdAt = 10;
     string updatedAt = 11;
     repeated EquipmentChecking equipment_checkings = 12;
+    Unit unit = 13;
+    Line line = 14;
+    Machine machine = 15;
 }
 
 message EquipmentChecking {

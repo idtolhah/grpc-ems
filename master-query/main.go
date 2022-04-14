@@ -197,7 +197,7 @@ func (*server) GetLines(ctx context.Context, req *masterpb.GetLinesRequest) (*ma
 
 	// Query: Start
 	var data []masterpb.Line
-	results, err := db_client.Query("SELECT id, name FROM liness")
+	results, err := db_client.Query("SELECT id, name FROM `lines`")
 	if err != nil {
 		return nil, err
 	}
@@ -230,7 +230,7 @@ func (*server) GetLine(ctx context.Context, req *masterpb.GetLineRequest) (*mast
 
 	// Query: Start
 	var line masterpb.Line
-	err := db_client.QueryRow(`SELECT id, name FROM liness WHERE id=?`, req.Id).Scan(&line.Id, &line.Name)
+	err := db_client.QueryRow("SELECT id, name FROM `lines` WHERE id=?", req.Id).Scan(&line.Id, &line.Name)
 	if err != nil {
 		return nil, err
 	}

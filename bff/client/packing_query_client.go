@@ -12,20 +12,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Packing struct {
-	Id           int64  `json:"id,omitempty"`
-	FoId         string `json:"fo_id,omitempty"`
-	LineId       int32  `json:"line_id,omitempty"`
-	MachineId    int32  `json:"machine_id,omitempty"`
-	UnitId       int32  `json:"unit_id,omitempty"`
-	DepartmentId int32  `json:"department_id,omitempty"`
-	AreaId       int32  `json:"area_id,omitempty"`
-	CompletedAt  string `json:"completed_at,omitempty"`
-	Status       int32  `json:"status,omitempty"`
-	CreatedAt    string `json:"createdAt,omitempty"`
-	UpdatedAt    string `json:"updatedAt,omitempty"`
-}
-
 type PackingQueryClient struct {
 }
 
@@ -84,11 +70,13 @@ func (ac *PackingQueryClient) GetPackings(c *gin.Context) {
 		return
 	}
 
-	var packings []Packing
+	var packings []packingquerypb.Packing
 	for _, d := range data.Packings {
-		packings = append(packings, Packing{
+		packings = append(packings, packingquerypb.Packing{
 			Id: d.Id, FoId: d.FoId, LineId: d.LineId, MachineId: d.MachineId, UnitId: d.UnitId, DepartmentId: d.DepartmentId,
 			AreaId: d.AreaId, CompletedAt: d.CompletedAt, Status: d.Status, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt,
+			Unit: d.Unit, Line: d.Line, Machine: d.Machine,
+			EquipmentCheckings: d.EquipmentCheckings,
 		})
 	}
 

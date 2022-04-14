@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,7 +13,8 @@ import (
 
 	"net"
 	"packing/db"
-	"packing/packingquerypb"
+	"packing/pb/masterpb"
+	"packing/pb/packingquerypb"
 	"packing/redis"
 	"packing/utils"
 	"time"
@@ -39,31 +39,104 @@ var (
 		Name: "demo_server_say_hello_method_handle_count",
 		Help: "Total number of RPCs handled on the server.",
 	}, []string{"name"})
+
+	_                       = utils.LoadLocalEnv()
+	masterGrpcService       = utils.GetEnv("MASTER_GRPC_SERVICE")
+	masterGrpcServiceClient masterpb.MasterServiceClient
 )
-
-type NullString string
-
-func (s *NullString) Scan(value interface{}) error {
-	if value == nil {
-		*s = ""
-		return nil
-	}
-	strVal, ok := value.(string)
-	if !ok {
-		return errors.New("Column is not a string")
-	}
-	*s = NullString(strVal)
-	return nil
-}
-func (s NullString) Value() (driver.Value, error) {
-	if len(s) == 0 { // if nil or empty string
-		return nil, nil
-	}
-	return string(s), nil
-}
 
 type server struct {
 	packingquerypb.UnimplementedPackingQueryServiceServer
+}
+
+func prepareUnitGrpcClient(c *context.Context) error {
+	conn, err := grpc.DialContext(*c, masterGrpcService, []grpc.DialOption{
+		grpc.WithInsecure(),
+		grpc.WithBlock()}...,
+	)
+
+	if err != nil {
+		masterGrpcServiceClient = nil
+		return errors.New("connection to unit gRPC service failed")
+	}
+
+	if masterGrpcServiceClient != nil {
+		conn.Close()
+		return nil
+	}
+
+	masterGrpcServiceClient = masterpb.NewMasterServiceClient(conn)
+	return nil
+}
+
+func GetUnit(id int32) *packingquerypb.Unit {
+	c := context.Background()
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	if err := prepareUnitGrpcClient(&ctx); err != nil {
+		return &packingquerypb.Unit{}
+	}
+
+	res, err := masterGrpcServiceClient.GetUnit(c, &masterpb.GetUnitRequest{Id: strconv.Itoa(int(id))})
+	if err != nil {
+		return &packingquerypb.Unit{}
+	}
+
+	return &packingquerypb.Unit{Id: res.Unit.Id, Name: res.Unit.Name}
+}
+
+func GetLine(id int32) *packingquerypb.Line {
+	c := context.Background()
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	if err := prepareUnitGrpcClient(&ctx); err != nil {
+		return &packingquerypb.Line{}
+	}
+
+	res, err := masterGrpcServiceClient.GetLine(c, &masterpb.GetLineRequest{Id: strconv.Itoa(int(id))})
+	if err != nil {
+		return &packingquerypb.Line{}
+	}
+
+	return &packingquerypb.Line{Id: res.Line.Id, Name: res.Line.Name}
+}
+
+func GetMachine(id int32) *packingquerypb.Machine {
+	c := context.Background()
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	if err := prepareUnitGrpcClient(&ctx); err != nil {
+		return &packingquerypb.Machine{}
+	}
+
+	res, err := masterGrpcServiceClient.GetMachine(c, &masterpb.GetMachineRequest{Id: strconv.Itoa(int(id))})
+	if err != nil {
+		return &packingquerypb.Machine{}
+	}
+
+	return &packingquerypb.Machine{Id: res.Machine.Id, Name: res.Machine.Name}
+}
+
+func GetEquipmentCheckings(id int64) []*packingquerypb.EquipmentChecking {
+	var data []*packingquerypb.EquipmentChecking
+	results, err := db_client.Query(`SELECT ao_created_at FROM equipment_checkings WHERE id=?`, id)
+	if err != nil {
+		return []*packingquerypb.EquipmentChecking{}
+	}
+	var equipment_checking packingquerypb.EquipmentChecking
+	for results.Next() {
+		err = results.Scan(
+			&equipment_checking.AoCreatedAt,
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		data = append(data, &equipment_checking)
+	}
+	return data
 }
 
 func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsRequest) (*packingquerypb.GetPackingsResponse, error) {
@@ -79,6 +152,7 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 		condition += " AND machine_id = " + req.MachineId
 	}
 
+	// Pagination: Start
 	var total int
 	var page = 1
 	var perpage = 5
@@ -87,7 +161,6 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 	if err != nil {
 		return nil, err
 	}
-
 	if req.Page != "" && req.Perpage != "" {
 		page, _ = strconv.Atoi(req.Page)
 		perpage, _ = strconv.Atoi(req.Perpage)
@@ -95,6 +168,7 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 		last_page = int(math.Ceil(float64(total / perpage)))
 		condition += " LIMIT " + req.Perpage + " OFFSET " + strconv.Itoa(int(offset))
 	}
+	// Pagination: End
 
 	var data []packingquerypb.Packing
 	results, err := db_client.Query(`
@@ -123,6 +197,10 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 		res.Packings = append(res.Packings, &packingquerypb.Packing{
 			Id: d.Id, FoId: d.FoId, LineId: d.LineId, MachineId: d.MachineId, UnitId: d.UnitId, DepartmentId: d.DepartmentId,
 			AreaId: d.AreaId, CompletedAt: d.CompletedAt, Status: d.Status, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt,
+			EquipmentCheckings: GetEquipmentCheckings(d.Id),
+			Unit:               GetUnit(d.UnitId),
+			Line:               GetLine(d.LineId),
+			Machine:            GetMachine(d.MachineId),
 		})
 	}
 	res.Total = int64(total)
