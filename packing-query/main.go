@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -12,6 +11,7 @@ import (
 	"strconv"
 
 	"net"
+	"packing/clients"
 	"packing/db"
 	"packing/pb/masterpb"
 	"packing/pb/packingquerypb"
@@ -27,7 +27,7 @@ import (
 )
 
 var (
-	timeout   = time.Second
+	timeout   = 10 * time.Second
 	db_client *sql.DB
 
 	// Create a metrics registry.
@@ -47,77 +47,6 @@ var (
 
 type server struct {
 	packingquerypb.UnimplementedPackingQueryServiceServer
-}
-
-func prepareUnitGrpcClient(c *context.Context) error {
-	conn, err := grpc.DialContext(*c, masterGrpcService, []grpc.DialOption{
-		grpc.WithInsecure(),
-		grpc.WithBlock()}...,
-	)
-
-	if err != nil {
-		masterGrpcServiceClient = nil
-		return errors.New("connection to unit gRPC service failed")
-	}
-
-	if masterGrpcServiceClient != nil {
-		conn.Close()
-		return nil
-	}
-
-	masterGrpcServiceClient = masterpb.NewMasterServiceClient(conn)
-	return nil
-}
-
-func GetUnit(id int32) *packingquerypb.Unit {
-	c := context.Background()
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	if err := prepareUnitGrpcClient(&ctx); err != nil {
-		return &packingquerypb.Unit{}
-	}
-
-	res, err := masterGrpcServiceClient.GetUnit(c, &masterpb.GetUnitRequest{Id: strconv.Itoa(int(id))})
-	if err != nil {
-		return &packingquerypb.Unit{}
-	}
-
-	return &packingquerypb.Unit{Id: res.Unit.Id, Name: res.Unit.Name}
-}
-
-func GetLine(id int32) *packingquerypb.Line {
-	c := context.Background()
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	if err := prepareUnitGrpcClient(&ctx); err != nil {
-		return &packingquerypb.Line{}
-	}
-
-	res, err := masterGrpcServiceClient.GetLine(c, &masterpb.GetLineRequest{Id: strconv.Itoa(int(id))})
-	if err != nil {
-		return &packingquerypb.Line{}
-	}
-
-	return &packingquerypb.Line{Id: res.Line.Id, Name: res.Line.Name}
-}
-
-func GetMachine(id int32) *packingquerypb.Machine {
-	c := context.Background()
-	ctx, cancel := context.WithTimeout(c, timeout)
-	defer cancel()
-
-	if err := prepareUnitGrpcClient(&ctx); err != nil {
-		return &packingquerypb.Machine{}
-	}
-
-	res, err := masterGrpcServiceClient.GetMachine(c, &masterpb.GetMachineRequest{Id: strconv.Itoa(int(id))})
-	if err != nil {
-		return &packingquerypb.Machine{}
-	}
-
-	return &packingquerypb.Machine{Id: res.Machine.Id, Name: res.Machine.Name}
 }
 
 func GetEquipmentCheckings(id int64) []*packingquerypb.EquipmentChecking {
@@ -198,9 +127,9 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 			Id: d.Id, FoId: d.FoId, LineId: d.LineId, MachineId: d.MachineId, UnitId: d.UnitId, DepartmentId: d.DepartmentId,
 			AreaId: d.AreaId, CompletedAt: d.CompletedAt, Status: d.Status, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt,
 			EquipmentCheckings: GetEquipmentCheckings(d.Id),
-			Unit:               GetUnit(d.UnitId),
-			Line:               GetLine(d.LineId),
-			Machine:            GetMachine(d.MachineId),
+			Unit:               clients.GetUnit(d.UnitId),
+			Line:               clients.GetLine(d.LineId),
+			Machine:            clients.GetMachine(d.MachineId),
 		})
 	}
 	res.Total = int64(total)
