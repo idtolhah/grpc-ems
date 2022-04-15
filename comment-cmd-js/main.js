@@ -16,16 +16,13 @@ var packageDefinition = protoLoader.loadSync(
 var comment_proto = grpc.loadPackageDefinition(packageDefinition).comment
 
 async function createPackingComment(call, callback) {
-    console.log('Called CreatePackingComment: ')
-    console.log('Call: ' + JSON.stringify(call.request))
-
+    // console.log('Called CreatePackingComment: ')
+    // console.log('Call: ' + JSON.stringify(call.request))
     try {
         const req = call.request
         const [results, metadata] = await db.query(`
             UPDATE equipment_checkings SET mr_id = '${req.mr_id}', mr_comment = '${req.mr_comment}', mr_created_at = '${moment().format('YYYY-MM-DD hh:mm:ss')}' WHERE id = ${req.equipment_checking_id}
         `);
-
-        console.log(JSON.stringify(results))
         callback(null, {results})
     } catch (error) {
         console.log(error)
