@@ -13,7 +13,6 @@ import (
 	"net"
 	"packing/clients"
 	"packing/db"
-	"packing/pb/masterpb"
 	"packing/pb/packingquerypb"
 	"packing/redis"
 	"packing/utils"
@@ -39,10 +38,6 @@ var (
 		Name: "demo_server_say_hello_method_handle_count",
 		Help: "Total number of RPCs handled on the server.",
 	}, []string{"name"})
-
-	_                       = utils.LoadLocalEnv()
-	masterGrpcService       = utils.GetEnv("MASTER_GRPC_SERVICE")
-	masterGrpcServiceClient masterpb.MasterServiceClient
 )
 
 type server struct {
@@ -51,7 +46,7 @@ type server struct {
 
 func GetEquipmentCheckings(id int64) []*packingquerypb.EquipmentChecking {
 	var data []*packingquerypb.EquipmentChecking
-	results, err := db_client.Query(`SELECT ao_created_at FROM equipment_checkings WHERE id=?`, id)
+	results, err := db_client.Query(`SELECT COALESCE(ao_created_at, '') FROM equipment_checkings WHERE id=?`, id)
 	if err != nil {
 		return []*packingquerypb.EquipmentChecking{}
 	}
@@ -186,7 +181,6 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 		ec.AssetEquipment = clients.GetAssetEquipment(ec.AssetEquipmentId)
 		ec.AssetEquipment.Line = clients.GetLine(ec.AssetEquipment.LineId)
 		ec.AssetEquipment.Machine = clients.GetMachine(ec.AssetEquipment.MachineId)
-		log.Printf("===============>%v", ec.FoCondition)
 		equipmentCheckings = append(equipmentCheckings, ec)
 	}
 
@@ -194,7 +188,6 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 		return nil, err
 	}
 	// Query: End
-	log.Printf("===============>%v", len(equipmentCheckings))
 	var res packingquerypb.GetPackingResponse
 	res.Packing = &packingquerypb.Packing{
 		Id: packing.Id, FoId: packing.FoId, LineId: packing.LineId, MachineId: packing.MachineId, UnitId: packing.UnitId,
@@ -208,7 +201,6 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 		Fo:         clients.GetUser(packing.FoId),
 	}
 	for _, d := range equipmentCheckings {
-		log.Printf("===============>%v", d.FoCondition)
 		res.EquipmentCheckings = append(res.EquipmentCheckings, &packingquerypb.EquipmentChecking{
 			Id: d.Id, IdEquipmentCheckingList: d.IdEquipmentCheckingList, PackingId: d.PackingId, AssetEquipmentId: d.AssetEquipmentId,
 			FoId: d.FoId, FoPhoto: d.FoPhoto, FoCondition: d.FoCondition, FoNote: d.FoNote, AoId: d.AoId, AoConclusion: d.AoConclusion,
