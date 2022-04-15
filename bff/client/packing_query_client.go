@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strconv"
 
+	"bff/cache"
 	"bff/pb/packingquerypb"
 	"bff/utils"
 
@@ -119,8 +120,17 @@ func (ac *PackingQueryClient) GetPacking(c *gin.Context) {
 		return
 	}
 
+	var res *packingquerypb.GetPackingResponse
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		jsonData := cache.GetCacheByKeyDirect("packings-id-" + param)
+		if jsonData != nil {
+			utils.Response(c, jsonData, nil)
+			return
+		}
+	}
+
 	id, _ := strconv.Atoi(param)
-	res, err := packingQueryGrpcServiceClient.GetPacking(ctx, &packingquerypb.GetPackingRequest{Id: int64(id)})
+	res, err = packingQueryGrpcServiceClient.GetPacking(ctx, &packingquerypb.GetPackingRequest{Id: int64(id)})
 	if err != nil {
 		utils.Response(c, nil, err)
 		return

@@ -131,10 +131,12 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 	res.Page = int64(page)
 	res.LastPage = int64(last_page)
 
-	go func() {
-		stringData, _ := json.Marshal(res.Packings)
-		redis.SendToRedisCacheDirect("packings", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Packings)
+			redis.SendToRedisCacheDirect("packings", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
@@ -208,6 +210,13 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 			MoCreatedAt: d.MoCreatedAt, MrId: d.MrId, MrComment: d.MrComment, MrCreatedAt: d.MrCreatedAt, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt,
 			Fo: d.Fo, AssetEquipment: d.AssetEquipment,
 		})
+	}
+
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(&res)
+			redis.SendToRedisCacheDirect("packings-id-"+strconv.Itoa(int(res.Packing.Id)), string(stringData))
+		}()
 	}
 
 	return &res, nil

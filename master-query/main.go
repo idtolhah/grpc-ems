@@ -69,10 +69,12 @@ func (*server) GetUnits(ctx context.Context, req *masterpb.GetUnitsRequest) (*ma
 		res.Units = append(res.Units, &masterpb.Unit{Id: int32(d.Id), Name: d.Name})
 	}
 
-	go func() {
-		stringData, _ := json.Marshal(res.Units)
-		redis.SendToRedisCacheDirect("units", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Units)
+			redis.SendToRedisCacheDirect("units", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
@@ -118,10 +120,12 @@ func (*server) GetDepartments(ctx context.Context, req *masterpb.GetDepartmentsR
 		res.Departments = append(res.Departments, &masterpb.Department{Id: int32(d.Id), Name: d.Name})
 	}
 
-	go func() {
-		stringData, _ := json.Marshal(res.Departments)
-		redis.SendToRedisCacheDirect("departments", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Departments)
+			redis.SendToRedisCacheDirect("departments", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
@@ -167,10 +171,12 @@ func (*server) GetAreas(ctx context.Context, req *masterpb.GetAreasRequest) (*ma
 		res.Areas = append(res.Areas, &masterpb.Area{Id: int32(d.Id), Name: d.Name})
 	}
 
-	go func() {
-		stringData, _ := json.Marshal(res.Areas)
-		redis.SendToRedisCacheDirect("areas", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Areas)
+			redis.SendToRedisCacheDirect("areas", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
@@ -216,10 +222,12 @@ func (*server) GetLines(ctx context.Context, req *masterpb.GetLinesRequest) (*ma
 		res.Lines = append(res.Lines, &masterpb.Line{Id: int32(d.Id), Name: d.Name})
 	}
 
-	go func() {
-		stringData, _ := json.Marshal(res.Lines)
-		redis.SendToRedisCacheDirect("lines", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Lines)
+			redis.SendToRedisCacheDirect("lines", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
@@ -265,10 +273,12 @@ func (*server) GetMachines(ctx context.Context, req *masterpb.GetMachinesRequest
 		res.Machines = append(res.Machines, &masterpb.Machine{Id: int32(d.Id), Name: d.Name})
 	}
 
-	go func() {
-		stringData, _ := json.Marshal(res.Machines)
-		redis.SendToRedisCacheDirect("machines", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Machines)
+			redis.SendToRedisCacheDirect("machines", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
@@ -314,10 +324,12 @@ func (*server) GetAssetEquipments(ctx context.Context, req *masterpb.GetAssetEqu
 		res.Assetequipments = append(res.Assetequipments, &masterpb.AssetEquipment{Id: int32(d.ID), Item: d.Item, ItemCheck: d.ItemCheck, CheckingMethod: d.CheckingMethod, Tools: d.Tools, StandardArea: d.StandardArea, Photo: d.Photo, LineId: int32(d.LineID), MachineId: int32(d.MachineID)})
 	}
 
-	go func() {
-		stringData, _ := json.Marshal(res.Assetequipments)
-		redis.SendToRedisCacheDirect("asset-equipments", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Assetequipments)
+			redis.SendToRedisCacheDirect("asset-equipments", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
@@ -371,10 +383,12 @@ func (*server) GetContacts(ctx context.Context, req *masterpb.GetContactsRequest
 		res.Contacts = append(res.Contacts, &masterpb.Contact{Id: int32(d.Id), Title: d.Title, Number: d.Number, Optime: d.OpTime, Opday: d.OpDay, Email: d.Email})
 	}
 
-	go func() {
-		stringData, _ := json.Marshal(res.Contacts)
-		redis.SendToRedisCacheDirect("contacts", string(stringData))
-	}()
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		go func() {
+			stringData, _ := json.Marshal(res.Contacts)
+			redis.SendToRedisCacheDirect("contacts", string(stringData))
+		}()
+	}
 
 	return &res, nil
 }
