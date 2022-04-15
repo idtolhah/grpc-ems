@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package comment;
+option go_package = "./commentcmdpb";
+
+// QFS
+message CreatePackingCommentRequest {
+    int32 equipment_checking_id = 1;
+    string mr_comment = 2;
+    string mr_id = 3;
+}
+message CreatePackingCommentResponse {
+    int64 id = 1;
+}
+
+// QFS
+service CommentCmdService {
+    rpc CreatePackingComment(CreatePackingCommentRequest) returns (CreatePackingCommentResponse) {};
+}

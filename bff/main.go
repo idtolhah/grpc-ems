@@ -25,6 +25,7 @@ var (
 	asset_equipment_client client.AssetEquipmentClient
 	packing_query_client   client.PackingQueryClient
 	packing_cmd_client     client.PackingCmdClient
+	comment_cmd_client     client.CommentCmdClient
 )
 
 // Main
@@ -75,6 +76,7 @@ func main() {
 	api.GET("/packings/:id", packing_query_client.GetPacking)
 	api.GET("/packings/summary", packing_query_client.GetSummary)
 	api.POST("/packings", packing_cmd_client.CreatePacking)
+	api.PUT("/packings/equipment-checkings/:id/comment", comment_cmd_client.CreatePackingComment)
 	api.POST("/packings/:id/equipment-checkings", packing_cmd_client.CreateEquipmentChecking)
 	api.PUT("/packings/:id/equipment-checkings/:ecid", packing_cmd_client.UpdateEquipmentChecking)
 
