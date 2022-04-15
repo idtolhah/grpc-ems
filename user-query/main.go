@@ -30,18 +30,23 @@ func (*server) GetUserDetails(ctx context.Context, req *userpb.GetUserDetailsReq
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	uid, err := primitive.ObjectIDFromHex(req.GetId())
-	if err != nil {
-		return nil, utils.Error_response(err)
-	}
-
 	// Query: Start
 	var data userdb.User
-	collection := userdb.Mongo_Client.Database(userdb.DB).Collection(userdb.Coll)
-
-	errQuery := collection.FindOne(ctx, bson.M{"_id": uid}).Decode(&data)
-	if errQuery != nil {
-		return nil, errQuery
+	uid, err := primitive.ObjectIDFromHex(req.GetId())
+	if err != nil {
+		// Non-hex id
+		collection := userdb.Mongo_Client.Database(userdb.DB).Collection(userdb.Coll)
+		errQuery := collection.FindOne(ctx, bson.M{"id": req.GetId()}).Decode(&data)
+		if errQuery != nil {
+			return nil, errQuery
+		}
+	} else {
+		// Hex id
+		collection := userdb.Mongo_Client.Database(userdb.DB).Collection(userdb.Coll)
+		errQuery := collection.FindOne(ctx, bson.M{"_id": uid}).Decode(&data)
+		if errQuery != nil {
+			return nil, errQuery
+		}
 	}
 	// Query: End
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package packingquerypb;
-option go_package = "./packingquerypb";
+option go_package = "./pb/packingquerypb";
 
 message Unit {
     int32 id = 1;
@@ -23,6 +23,24 @@ message Machine {
     int32 id = 1;
     string name = 2;
 }
+message User {
+    string id = 1;
+    string name = 2;
+    string group_id = 3;
+}
+message AssetEquipment {
+    int32 id = 1;
+    string item = 2;
+    string item_check = 3;
+    string checking_method = 4;
+    string tools = 5;
+    string standard_area = 6;
+    string photo = 7;
+    int32 line_id = 8;
+    int32 machine_id = 9;
+    Line line = 10;
+    Machine machine = 11;
+}
 
 message Packing {
     int64 id = 1;
@@ -36,12 +54,13 @@ message Packing {
     int32 status = 9;
     string createdAt = 10;
     string updatedAt = 11;
-    repeated EquipmentChecking equipment_checkings = 12;
+    repeated EquipmentChecking equipment_checkings = 12; 
     Unit unit = 13;
     Department department = 14;
     Area area = 15;
     Line line = 16;
     Machine machine = 17;
+    User fo = 18;
 }
 
 message EquipmentChecking {
@@ -52,11 +71,11 @@ message EquipmentChecking {
     
     string fo_id = 5;
     string fo_photo = 6;
-    int32 fo_condition = 7;
+    string fo_condition = 7;
     string fo_note = 8;
 
     string ao_id = 9;
-    int32 ao_conclusion = 10;
+    string ao_conclusion = 10;
     string ao_note = 11;
     string ao_created_at = 12;
 
@@ -71,6 +90,9 @@ message EquipmentChecking {
 
     string createdAt = 20;
     string updatedAt = 21;
+
+    User fo = 22;
+    AssetEquipment asset_equipment = 23;
 }
 
 // All

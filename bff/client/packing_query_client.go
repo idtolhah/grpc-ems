@@ -12,6 +12,27 @@ import (
 	"google.golang.org/grpc"
 )
 
+type PackingResponse struct {
+	Id                 int64                               `json:"id,omitempty"`
+	FoId               string                              `json:"fo_id,omitempty"`
+	LineId             int32                               `json:"line_id,omitempty"`
+	MachineId          int32                               `json:"machine_id,omitempty"`
+	UnitId             int32                               `json:"unit_id,omitempty"`
+	DepartmentId       int32                               `json:"department_id,omitempty"`
+	AreaId             int32                               `json:"area_id,omitempty"`
+	CompletedAt        string                              `json:"completed_at,omitempty"`
+	Status             int32                               `json:"status,omitempty"`
+	CreatedAt          string                              `json:"createdAt,omitempty"`
+	UpdatedAt          string                              `json:"updatedAt,omitempty"`
+	EquipmentCheckings []*packingquerypb.EquipmentChecking `json:"equipment_checkings,omitempty"`
+	Unit               *packingquerypb.Unit                `json:"unit,omitempty"`
+	Department         *packingquerypb.Department          `json:"department,omitempty"`
+	Area               *packingquerypb.Area                `json:"area,omitempty"`
+	Line               *packingquerypb.Line                `json:"line,omitempty"`
+	Machine            *packingquerypb.Machine             `json:"machine,omitempty"`
+	Fo                 *packingquerypb.User                `json:"fo,omitempty"`
+}
+
 type PackingQueryClient struct {
 }
 
@@ -99,12 +120,34 @@ func (ac *PackingQueryClient) GetPacking(c *gin.Context) {
 	}
 
 	id, _ := strconv.Atoi(param)
-	data, err := packingQueryGrpcServiceClient.GetPacking(ctx, &packingquerypb.GetPackingRequest{Id: int64(id)})
-
+	res, err := packingQueryGrpcServiceClient.GetPacking(ctx, &packingquerypb.GetPackingRequest{Id: int64(id)})
 	if err != nil {
 		utils.Response(c, nil, err)
 		return
 	}
 
-	utils.Response(c, data, err)
+	utils.Response(
+		c,
+		PackingResponse{
+			Id:                 res.Packing.Id,
+			FoId:               res.Packing.FoId,
+			LineId:             res.Packing.LineId,
+			MachineId:          res.Packing.MachineId,
+			UnitId:             res.Packing.UnitId,
+			DepartmentId:       res.Packing.DepartmentId,
+			AreaId:             res.Packing.AreaId,
+			CompletedAt:        res.Packing.CompletedAt,
+			Status:             res.Packing.Status,
+			CreatedAt:          res.Packing.CreatedAt,
+			UpdatedAt:          res.Packing.UpdatedAt,
+			EquipmentCheckings: res.EquipmentCheckings,
+			Fo:                 res.Packing.Fo,
+			Unit:               res.Packing.Unit,
+			Department:         res.Packing.Department,
+			Area:               res.Packing.Area,
+			Line:               res.Packing.Line,
+			Machine:            res.Packing.Machine,
+		},
+		err,
+	)
 }

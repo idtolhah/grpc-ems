@@ -160,7 +160,7 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 		return nil, err
 	}
 
-	var equipmentCheckings []*packingquerypb.EquipmentChecking
+	var equipmentCheckings []packingquerypb.EquipmentChecking
 	results, err := db_client.Query(`
 		SELECT id, id_equipment_checking_list, packing_id, asset_equipment_id, 
 		fo_id,  fo_photo, fo_condition, COALESCE(fo_note,''), 
@@ -182,20 +182,43 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 		if err != nil {
 			log.Println(err)
 		}
-		equipmentCheckings = append(equipmentCheckings, &ec)
+		ec.Fo = clients.GetUser(ec.FoId)
+		ec.AssetEquipment = clients.GetAssetEquipment(ec.AssetEquipmentId)
+		ec.AssetEquipment.Line = clients.GetLine(ec.AssetEquipment.LineId)
+		ec.AssetEquipment.Machine = clients.GetMachine(ec.AssetEquipment.MachineId)
+		log.Printf("===============>%v", ec.FoCondition)
+		equipmentCheckings = append(equipmentCheckings, ec)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 	// Query: End
-
-	return &packingquerypb.GetPackingResponse{
+	log.Printf("===============>%v", len(equipmentCheckings))
+	var res packingquerypb.GetPackingResponse
+	res.Packing = &packingquerypb.Packing{
 		Id: packing.Id, FoId: packing.FoId, LineId: packing.LineId, MachineId: packing.MachineId, UnitId: packing.UnitId,
 		DepartmentId: packing.DepartmentId, AreaId: packing.AreaId, CompletedAt: packing.CompletedAt, Status: packing.Status,
 		CreatedAt: packing.CreatedAt, UpdatedAt: packing.UpdatedAt,
-		EquipmentCheckings: equipmentCheckings,
-	}, nil
+		Unit:       clients.GetUnit(packing.UnitId),
+		Department: clients.GetDepartment(packing.DepartmentId),
+		Area:       clients.GetArea(packing.AreaId),
+		Line:       clients.GetLine(packing.LineId),
+		Machine:    clients.GetMachine(packing.MachineId),
+		Fo:         clients.GetUser(packing.FoId),
+	}
+	for _, d := range equipmentCheckings {
+		log.Printf("===============>%v", d.FoCondition)
+		res.EquipmentCheckings = append(res.EquipmentCheckings, &packingquerypb.EquipmentChecking{
+			Id: d.Id, IdEquipmentCheckingList: d.IdEquipmentCheckingList, PackingId: d.PackingId, AssetEquipmentId: d.AssetEquipmentId,
+			FoId: d.FoId, FoPhoto: d.FoPhoto, FoCondition: d.FoCondition, FoNote: d.FoNote, AoId: d.AoId, AoConclusion: d.AoConclusion,
+			AoNote: d.AoNote, AoCreatedAt: d.AoCreatedAt, MoId: d.MoId, MoRepairPhoto: d.MoRepairPhoto, MoNote: d.MoNote,
+			MoCreatedAt: d.MoCreatedAt, MrId: d.MrId, MrComment: d.MrComment, MrCreatedAt: d.MrCreatedAt, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt,
+			Fo: d.Fo, AssetEquipment: d.AssetEquipment,
+		})
+	}
+
+	return &res, nil
 }
 
 func init() {

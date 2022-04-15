@@ -135,5 +135,5 @@ var PackingQueryService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "packingquerypb/packingquery.proto",
+	Metadata: "pb/packingquerypb/packingquery.proto",
 }

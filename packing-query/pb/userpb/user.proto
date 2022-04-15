@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package userpb;
+option go_package = "./userpb";
+
+message User {
+    string id = 1;
+    string name = 2;
+    string email = 3; 
+    string password = 4;
+    int32 is_admin = 5;
+    string group_id = 6;
+    int32 role_id = 7;
+    int32 refinery_id = 8;
+    int32 area_id = 9;
+    int32 department_id = 10;
+    string createdAt = 11;
+    string updatedAt = 12;
+}
+
+message GetUserDetailsRequest{
+    string id = 1;
+}
+
+message GetUserDetailsResponse{
+    User user = 1;
+}
+
+message GetUsersRequest{}
+
+message GetUsersResponse{
+    repeated User users = 1;
+}
+
+message LoginRequest{
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse{
+    User user = 1;
+    string token = 2;
+}
+
+service UserService{
+    rpc GetUserDetails(GetUserDetailsRequest) returns (GetUserDetailsResponse) {};
+    rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {};
+    rpc Login(LoginRequest) returns (LoginResponse) {};
+}
