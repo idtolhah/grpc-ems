@@ -139,25 +139,47 @@ func (ac *PackingQueryClient) GetPacking(c *gin.Context) {
 	utils.Response(
 		c,
 		PackingResponse{
-			Id:                 res.Packing.Id,
-			FoId:               res.Packing.FoId,
-			LineId:             res.Packing.LineId,
-			MachineId:          res.Packing.MachineId,
-			UnitId:             res.Packing.UnitId,
-			DepartmentId:       res.Packing.DepartmentId,
-			AreaId:             res.Packing.AreaId,
-			CompletedAt:        res.Packing.CompletedAt,
-			Status:             res.Packing.Status,
-			CreatedAt:          res.Packing.CreatedAt,
-			UpdatedAt:          res.Packing.UpdatedAt,
-			EquipmentCheckings: res.EquipmentCheckings,
-			Fo:                 res.Packing.Fo,
-			Unit:               res.Packing.Unit,
-			Department:         res.Packing.Department,
-			Area:               res.Packing.Area,
-			Line:               res.Packing.Line,
-			Machine:            res.Packing.Machine,
+			Id: res.Packing.Id, FoId: res.Packing.FoId, LineId: res.Packing.LineId, MachineId: res.Packing.MachineId,
+			UnitId: res.Packing.UnitId, DepartmentId: res.Packing.DepartmentId, AreaId: res.Packing.AreaId,
+			CompletedAt: res.Packing.CompletedAt, Status: res.Packing.Status, CreatedAt: res.Packing.CreatedAt,
+			UpdatedAt: res.Packing.UpdatedAt, EquipmentCheckings: res.EquipmentCheckings, Fo: res.Packing.Fo,
+			Unit: res.Packing.Unit, Department: res.Packing.Department, Area: res.Packing.Area,
+			Line: res.Packing.Line, Machine: res.Packing.Machine,
 		},
+		err,
+	)
+}
+
+func (ac *PackingQueryClient) GetSummary(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c, timeout)
+	defer cancel()
+
+	if err := preparePackingGrpcClient(&ctx); err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		jsonData := cache.GetCacheByKeyDirect("packings-summary")
+		if jsonData != nil {
+			utils.Response(c, jsonData, nil)
+			return
+		}
+	}
+
+	res, err := packingQueryGrpcServiceClient.GetSummary(ctx, &packingquerypb.GetSummaryRequest{})
+	if err != nil {
+		utils.Response(c, nil, err)
+		return
+	}
+
+	totalSubmitted, _ := strconv.Atoi(res.TotalSubmitted)
+	totalPending, _ := strconv.Atoi(res.TotalPending)
+	totalFollowedUp, _ := strconv.Atoi(res.TotalFollowedUp)
+	totalCompleted, _ := strconv.Atoi(res.TotalCompleted)
+
+	utils.ResponseSummary(c,
+		totalSubmitted, totalPending, totalFollowedUp, totalCompleted,
 		err,
 	)
 }

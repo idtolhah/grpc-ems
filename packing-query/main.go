@@ -222,6 +222,41 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 	return &res, nil
 }
 
+func (*server) GetSummary(ctx context.Context, req *packingquerypb.GetSummaryRequest) (*packingquerypb.GetSummaryResponse, error) {
+	_, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	var (
+		totalSubmitted  string
+		totalPending    string
+		totalFollowedUp string
+		totalCompleted  string
+	)
+	err := db_client.QueryRow(`SELECT COUNT(id) FROM packings WHERE status = 2 `).Scan(&totalSubmitted)
+	if err != nil {
+		return nil, err
+	}
+	err = db_client.QueryRow(`SELECT COUNT(id) FROM packings WHERE status = 3 `).Scan(&totalPending)
+	if err != nil {
+		return nil, err
+	}
+	err = db_client.QueryRow(`SELECT COUNT(id) FROM packings WHERE status = 4 `).Scan(&totalFollowedUp)
+	if err != nil {
+		return nil, err
+	}
+	err = db_client.QueryRow(`SELECT COUNT(id) FROM packings WHERE status = 5 `).Scan(&totalCompleted)
+	if err != nil {
+		return nil, err
+	}
+
+	return &packingquerypb.GetSummaryResponse{
+		TotalSubmitted:  totalSubmitted,
+		TotalPending:    totalPending,
+		TotalFollowedUp: totalFollowedUp,
+		TotalCompleted:  totalCompleted,
+	}, nil
+}
+
 func init() {
 	// Register standard server metrics and customized metrics to registry.
 	reg.MustRegister(grpcMetrics, customizedCounterMetric)

@@ -73,6 +73,7 @@ func main() {
 	// Packing
 	api.GET("/packings", packing_query_client.GetPackings)
 	api.GET("/packings/:id", packing_query_client.GetPacking)
+	api.GET("/packings/summary", packing_query_client.GetSummary)
 	api.POST("/packings", packing_cmd_client.CreatePacking)
 	api.POST("/packings/:id/equipment-checkings", packing_cmd_client.CreateEquipmentChecking)
 	api.PUT("/packings/:id/equipment-checkings/:ecid", packing_cmd_client.UpdateEquipmentChecking)

@@ -122,8 +122,17 @@ message GetPackingResponse {
     repeated EquipmentChecking equipment_checkings = 2;
 }
 
+message GetSummaryRequest {}
+message GetSummaryResponse {
+    string totalSubmitted = 1;
+    string totalPending = 2;
+    string totalFollowedUp = 3;
+    string totalCompleted = 4;
+}
+
 service PackingQueryService {
     // All
     rpc GetPackings(GetPackingsRequest) returns (GetPackingsResponse) {};
     rpc GetPacking(GetPackingRequest) returns (GetPackingResponse) {};
+    rpc GetSummary(GetSummaryRequest) returns (GetSummaryResponse) {};
 }

@@ -57,6 +57,20 @@ func ResponsePaged(c *gin.Context, data interface{}, total int, page int, last_p
 	c.JSON(statusCode, gin.H{"data": data, "total": total, "page": page, "last_page": last_page, "error": errorMessage})
 }
 
+func ResponseSummary(c *gin.Context, totalSubmitted int, totalPending int, totalFollowedUp int, totalCompleted int, err error) {
+	statusCode := http.StatusOK
+	var errorMessage string
+	if err != nil {
+		log.Println("Server Error Occured:", err)
+		errorMessage = strings.Title(err.Error())
+		statusCode = http.StatusInternalServerError
+	}
+	c.JSON(statusCode, gin.H{
+		"totalSubmitted": totalSubmitted, "totalPending": totalPending, "totalFollowedUp": totalFollowedUp, "totalCompleted": totalCompleted,
+		"error": errorMessage,
+	})
+}
+
 func GetParam(c *gin.Context, param string) (string, error) {
 	p := c.Param(param)
 	if len(p) == 0 {

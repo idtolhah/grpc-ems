@@ -21,6 +21,7 @@ type PackingQueryServiceClient interface {
 	// All
 	GetPackings(ctx context.Context, in *GetPackingsRequest, opts ...grpc.CallOption) (*GetPackingsResponse, error)
 	GetPacking(ctx context.Context, in *GetPackingRequest, opts ...grpc.CallOption) (*GetPackingResponse, error)
+	GetSummary(ctx context.Context, in *GetSummaryRequest, opts ...grpc.CallOption) (*GetSummaryResponse, error)
 }
 
 type packingQueryServiceClient struct {
@@ -49,6 +50,15 @@ func (c *packingQueryServiceClient) GetPacking(ctx context.Context, in *GetPacki
 	return out, nil
 }
 
+func (c *packingQueryServiceClient) GetSummary(ctx context.Context, in *GetSummaryRequest, opts ...grpc.CallOption) (*GetSummaryResponse, error) {
+	out := new(GetSummaryResponse)
+	err := c.cc.Invoke(ctx, "/packingquerypb.PackingQueryService/GetSummary", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PackingQueryServiceServer is the server API for PackingQueryService service.
 // All implementations must embed UnimplementedPackingQueryServiceServer
 // for forward compatibility
@@ -56,6 +66,7 @@ type PackingQueryServiceServer interface {
 	// All
 	GetPackings(context.Context, *GetPackingsRequest) (*GetPackingsResponse, error)
 	GetPacking(context.Context, *GetPackingRequest) (*GetPackingResponse, error)
+	GetSummary(context.Context, *GetSummaryRequest) (*GetSummaryResponse, error)
 	mustEmbedUnimplementedPackingQueryServiceServer()
 }
 
@@ -68,6 +79,9 @@ func (UnimplementedPackingQueryServiceServer) GetPackings(context.Context, *GetP
 }
 func (UnimplementedPackingQueryServiceServer) GetPacking(context.Context, *GetPackingRequest) (*GetPackingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPacking not implemented")
+}
+func (UnimplementedPackingQueryServiceServer) GetSummary(context.Context, *GetSummaryRequest) (*GetSummaryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSummary not implemented")
 }
 func (UnimplementedPackingQueryServiceServer) mustEmbedUnimplementedPackingQueryServiceServer() {}
 
@@ -118,6 +132,24 @@ func _PackingQueryService_GetPacking_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PackingQueryService_GetSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PackingQueryServiceServer).GetSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/packingquerypb.PackingQueryService/GetSummary",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PackingQueryServiceServer).GetSummary(ctx, req.(*GetSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PackingQueryService_ServiceDesc is the grpc.ServiceDesc for PackingQueryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -132,6 +164,10 @@ var PackingQueryService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPacking",
 			Handler:    _PackingQueryService_GetPacking_Handler,
+		},
+		{
+			MethodName: "GetSummary",
+			Handler:    _PackingQueryService_GetSummary_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
