@@ -34,6 +34,7 @@ function main() {
     
     var server = new grpc.Server();
     const addr = `${process.env.GRPC_SERVICE_HOST}:${process.env.GRPC_SERVICE_PORT}`
+    console.log("addr========>" + addr)
     server.addService(comment_proto.CommentCmdService.service, {createPackingComment})
     server.bindAsync(addr, grpc.ServerCredentials.createInsecure(), () => {
         server.start() 

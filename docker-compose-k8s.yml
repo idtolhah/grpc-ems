@@ -1,7 +1,10 @@
 version: '3.7'
 services:
-  master:
-    container_name: master
+  master-query:
+    build: 
+      context: .
+      dockerfile: master-query/Dockerfile
+    container_name: master-query
     ports:
       - '50051:50051'
     image: master:latest
@@ -9,10 +12,13 @@ services:
       - my-network
     depends_on:
       - mysql-slave
-          # condition: service_healthy
+        # condition: service_healthy
 
-  user:
-    container_name: user
+  user-query:
+    build: 
+      context: .
+      dockerfile: user-query/Dockerfile
+    container_name: user-query
     ports:
       - '50052:50052'
     image: user:latest
@@ -23,6 +29,9 @@ services:
         # condition: service_healthy
 
   packing-query:
+    build: 
+      context: .
+      dockerfile: packing-query/Dockerfile
     container_name: packing-query
     ports:
       - '50053:50053'
@@ -31,9 +40,12 @@ services:
       - my-network
     depends_on:
       - mysql-slave
-          # condition: service_healthy
+        # condition: service_healthy
 
   packing-cmd:
+    build: 
+      context: .
+      dockerfile: packing-cmd/Dockerfile
     container_name: packing-cmd
     ports:
       - '50054:50054'
@@ -42,9 +54,12 @@ services:
       - my-network
     depends_on:
       - mysql-master
-          # condition: service_healthy
+        # condition: service_healthy
   
   comment-cmd:
+    build: 
+      context: .
+      dockerfile: comment-cmd/Dockerfile
     container_name: comment-cmd
     ports:
       - '50055:50055'
@@ -53,26 +68,29 @@ services:
       - my-network
     depends_on:
       - mysql-master
-          # condition: service_healthy
+        # condition: service_healthy
 
   bff:
+    build: 
+      context: .
+      dockerfile: bff/Dockerfile
     container_name: bff
     ports:
       - '8080:8080'
     image: bff:latest
     networks:
       - my-network
-    # depends_on:
-    #   master:
-    #     condition: service_healthy
-    #   user:
-    #     condition: service_healthy
-    #   packing-query:
-    #     condition: service_healthy
-    #   packing-cmd:
-    #     condition: service_healthy
-    #   comment-cmd:
-    #     condition: service_healthy
+  #   depends_on:
+  #     master:
+  #       condition: service_healthy
+  #     user:
+  #       condition: service_healthy
+  #     packing-query:
+  #       condition: service_healthy
+  #     packing-cmd:
+  #       condition: service_healthy
+  #     comment-cmd:
+  #       condition: service_healthy
 
   mongo:
     container_name: mongo
@@ -92,7 +110,7 @@ services:
     image: mariadb:10.5.8
     container_name: mysql-master
     ports:
-      - '3307:3306'
+      - '3306:3306'
     restart: unless-stopped
     env_file: ./master/.env.master
     cap_add:
@@ -116,7 +134,7 @@ services:
     image: mariadb:10.5.8
     container_name: mysql-slave
     ports:
-      - '3308:3306'
+      - '3306:3306'
     restart: unless-stopped
     env_file: ./slave/.env.slave
     cap_add:
