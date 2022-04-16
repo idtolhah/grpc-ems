@@ -20,7 +20,7 @@ func Error_credentials() error {
 
 func LoadLocalEnv() interface{} {
 	if _, runningInContainer := os.LookupEnv("GRPC_SERVICE_HOST"); !runningInContainer {
-		err := godotenv.Load(".env")
+		err := godotenv.Load(".env.k8s")
 		if err != nil {
 			log.Fatal(err)
 		}

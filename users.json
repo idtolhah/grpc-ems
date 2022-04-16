@@ -1,0 +1,112 @@
+{ 
+    "_id" : ObjectId("62479ee9e4854d5a7fbb630e"), 
+    "name" : "John Foreman", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "fo@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 1.0, 
+    "id" : "00000001"
+}
+{ 
+    "_id" : ObjectId("6248694ae4854d5a7fbb6324"), 
+    "name" : "Andri Area Officer", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "ao@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 2.0, 
+    "id" : "00000002"
+}
+{ 
+    "_id" : ObjectId("6248694de4854d5a7fbb6325"), 
+    "name" : "Henry QFS", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "qfs@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 1.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 5.0, 
+    "id" : "00000005"
+}
+{ 
+    "_id" : ObjectId("6248694ee4854d5a7fbb6326"), 
+    "name" : "The MR Officer", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "fo@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 4.0, 
+    "id" : "00000004"
+}
+{ 
+    "_id" : ObjectId("6248694fe4854d5a7fbb6327"), 
+    "name" : "John Foreman", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "fo@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 1.0
+}
+{ 
+    "_id" : ObjectId("62486975e4854d5a7fbb6328"), 
+    "name" : "John Foreman", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "fo@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 1.0
+}
+{ 
+    "_id" : ObjectId("62486976e4854d5a7fbb6329"), 
+    "name" : "John Foreman", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "fo@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 1.0
+}
+{ 
+    "_id" : ObjectId("6248697de4854d5a7fbb632a"), 
+    "name" : "John Foreman", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "fo@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 1.0
+}
+{ 
+    "_id" : ObjectId("6248697de4854d5a7fbb632b"), 
+    "name" : "John Foreman", 
+    "area_id" : 1.0, 
+    "department_id" : 1.0, 
+    "email" : "fo@example.com", 
+    "group_id" : "1", 
+    "is_admin" : 0.0, 
+    "password" : "$2a$10$DYFoTz4lWk75sxzlxPYFcOOGLg0dBBRmltFbzbNQ302FESEJawT9u", 
+    "refinery_id" : 1.0, 
+    "role_id" : 1.0
+}

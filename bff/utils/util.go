@@ -18,7 +18,7 @@ import (
 func LoadLocalEnv() interface{} {
 	_, runningInContainer := os.LookupEnv("CONTAINER")
 	if !runningInContainer {
-		err := godotenv.Load(".env")
+		err := godotenv.Load(".env.k8s")
 		if err != nil {
 			log.Fatal(err)
 		}

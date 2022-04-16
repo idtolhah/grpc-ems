@@ -1,4 +1,4 @@
-require('dotenv').config('../.env')
+require('dotenv').config('../.env.k8s')
 const Sequelize = require('sequelize')
 
 const db = new Sequelize(

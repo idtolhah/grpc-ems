@@ -11,7 +11,7 @@ services:
     networks:
       - my-network
     depends_on:
-      - mysql-slave
+      - mysql-master
         # condition: service_healthy
 
   user-query:
@@ -39,7 +39,7 @@ services:
     networks:
       - my-network
     depends_on:
-      - mysql-slave
+      - mysql-master
         # condition: service_healthy
 
   packing-cmd:
@@ -130,29 +130,29 @@ services:
       timeout: 20s
       retries: 10
 
-  mysql-slave:
-    image: mariadb:10.5.8
-    container_name: mysql-slave
-    ports:
-      - '3306:3306'
-    restart: unless-stopped
-    env_file: ./slave/.env.slave
-    cap_add:
-      - all
-    volumes:
-      - ./slave/data:/var/lib/mysql
-      - ./slave/my.cnf:/etc/my.cnf
-    environment:
-      - TZ:${TZ}
-      - MYSQL_USER:${MYSQL_USER}
-      - MYSQL_PASSWORD:${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD:${MYSQL_ROOT_PASSWORD}
-    networks:
-      - my-network
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+  # mysql-slave:
+  #   image: mariadb:10.5.8
+  #   container_name: mysql-slave
+  #   ports:
+  #     - '3306:3306'
+  #   restart: unless-stopped
+  #   env_file: ./slave/.env.slave
+  #   cap_add:
+  #     - all
+  #   volumes:
+  #     - ./slave/data:/var/lib/mysql
+  #     - ./slave/my.cnf:/etc/my.cnf
+  #   environment:
+  #     - TZ:${TZ}
+  #     - MYSQL_USER:${MYSQL_USER}
+  #     - MYSQL_PASSWORD:${MYSQL_PASSWORD}
+  #     - MYSQL_ROOT_PASSWORD:${MYSQL_ROOT_PASSWORD}
+  #   networks:
+  #     - my-network
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+  #     timeout: 20s
+  #     retries: 10
   
   redis:
     container_name: redis

@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  MYSQL_PASSWORD: Master123@
+  MYSQL_PORT: "3306"
+  MYSQL_ROOT_PASSWORD: Mastermaster123
+  MYSQL_USER: master
+  TZ: UTC
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql-master-master--env-master
+  name: master--env-master
