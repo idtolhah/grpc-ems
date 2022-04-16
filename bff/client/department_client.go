@@ -54,10 +54,12 @@ func (uc *DepartmentClient) GetDepartments(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	jsonData := cache.GetCacheByKeyDirect("departments")
-	if jsonData != nil && utils.GetEnv("USE_CACHE") == "yes" {
-		utils.Response(c, jsonData, nil)
-		return
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		jsonData := cache.GetCacheByKeyDirect("departments")
+		if jsonData != nil {
+			utils.Response(c, jsonData, nil)
+			return
+		}
 	}
 
 	if err := prepareDepartmentGrpcClient(&ctx); err != nil {

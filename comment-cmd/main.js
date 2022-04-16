@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env.local' })
+require('dotenv').config({ path: './.env' })
 var PROTO_PATH = __dirname + '/commentcmdpb/commentcmd.proto'
 
 var grpc = require('@grpc/grpc-js')

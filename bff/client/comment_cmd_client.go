@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"errors"
-	"log"
 
 	"bff/pb/commentcmdpb"
 	"bff/utils"
@@ -80,8 +79,6 @@ func (ac *CommentCmdClient) CreatePackingComment(c *gin.Context) {
 			MrId:                req.MrId,
 		},
 	)
-
-	log.Printf("===========>%v", data)
 
 	if err != nil {
 		utils.Response(c, nil, err)

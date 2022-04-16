@@ -1,0 +1,11 @@
+master:         50051
+user:           50052
+packing-query   50053
+packing-cmd     50054
+comment-cmd     50055
+
+bff:            8080
+mongo:          27017
+mysql-master:   3307
+mysql-slave:    3308
+redis:          6379

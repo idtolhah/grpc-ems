@@ -1,4 +1,4 @@
-require('dotenv').config('../.env.local')
+require('dotenv').config('../.env')
 const Sequelize = require('sequelize')
 
 const db = new Sequelize(

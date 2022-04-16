@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  MYSQL_PASSWORD: slave123@
+  MYSQL_PORT: "3306"
+  MYSQL_ROOT_PASSWORD: slaveslave123
+  MYSQL_USER: slave
+  TZ: UTC
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql-slave-slave--env-slave
+  name: slave--env-slave

@@ -1,24 +1,18 @@
-version: '3.9'
+version: '3.7'
 services:
-  master-query:
-    build: 
-      context: .
-      dockerfile: master-query/Dockerfile
-    container_name: master-query
+  master:
+    container_name: master
     ports:
       - '50051:50051'
     image: master:latest
     networks:
       - my-network
     depends_on:
-      mysql-slave:
-        condition: service_healthy
+      - mysql-slave
+          # condition: service_healthy
 
-  user-query:
-    build: 
-      context: .
-      dockerfile: user-query/Dockerfile
-    container_name: user-query
+  user:
+    container_name: user
     ports:
       - '50052:50052'
     image: user:latest
@@ -29,9 +23,6 @@ services:
         # condition: service_healthy
 
   packing-query:
-    build: 
-      context: .
-      dockerfile: packing-query/Dockerfile
     container_name: packing-query
     ports:
       - '50053:50053'
@@ -39,13 +30,10 @@ services:
     networks:
       - my-network
     depends_on:
-      mysql-slave:
-        condition: service_healthy
+      - mysql-slave
+          # condition: service_healthy
 
   packing-cmd:
-    build: 
-      context: .
-      dockerfile: packing-cmd/Dockerfile
     container_name: packing-cmd
     ports:
       - '50054:50054'
@@ -53,13 +41,10 @@ services:
     networks:
       - my-network
     depends_on:
-      mysql-master:
-        condition: service_healthy
+      - mysql-master
+          # condition: service_healthy
   
   comment-cmd:
-    build: 
-      context: .
-      dockerfile: comment-cmd/Dockerfile
     container_name: comment-cmd
     ports:
       - '50055:50055'
@@ -67,30 +52,27 @@ services:
     networks:
       - my-network
     depends_on:
-      mysql-master:
-        condition: service_healthy
+      - mysql-master
+          # condition: service_healthy
 
   bff:
-    build: 
-      context: .
-      dockerfile: bff/Dockerfile
     container_name: bff
     ports:
       - '8080:8080'
     image: bff:latest
     networks:
       - my-network
-  #   depends_on:
-  #     master:
-  #       condition: service_healthy
-  #     user:
-  #       condition: service_healthy
-  #     packing-query:
-  #       condition: service_healthy
-  #     packing-cmd:
-  #       condition: service_healthy
-  #     comment-cmd:
-  #       condition: service_healthy
+    # depends_on:
+    #   master:
+    #     condition: service_healthy
+    #   user:
+    #     condition: service_healthy
+    #   packing-query:
+    #     condition: service_healthy
+    #   packing-cmd:
+    #     condition: service_healthy
+    #   comment-cmd:
+    #     condition: service_healthy
 
   mongo:
     container_name: mongo

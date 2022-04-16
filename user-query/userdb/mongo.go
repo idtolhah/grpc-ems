@@ -38,8 +38,7 @@ var (
 var Mongo_Client *mongo.Client
 
 func NewClient(ctx context.Context) (*mongo.Client, error) {
-	client, err := mongo.Connect(ctx,
-		options.Client().ApplyURI(Addr))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(Addr))
 	// .SetAuth(options.Credential{
 	// 	AuthSource: db,
 	// 	Username:   user,

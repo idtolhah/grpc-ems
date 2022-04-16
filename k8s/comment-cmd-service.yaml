@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: comment-cmd
+  name: comment-cmd
+spec:
+  ports:
+    - name: "50055"
+      port: 50055
+      targetPort: 50055
+  selector:
+    io.kompose.service: comment-cmd
+status:
+  loadBalancer: {}

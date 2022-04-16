@@ -1,16 +1,21 @@
 {
-  "name": "contact",
+  "name": "comment-cmd",
   "version": "0.1.0",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
   "dependencies": {
+    "@grpc/grpc-js": "^1.1.0",
     "@grpc/proto-loader": "^0.5.0",
     "async": "^1.5.2",
     "dotenv": "^8.6.0",
     "google-protobuf": "^3.0.0",
-    "@grpc/grpc-js": "^1.1.0",
     "lodash": "^4.6.1",
     "minimist": "^1.2.0",
     "moment": "^2.29.1",
     "mysql2": "^2.3.2",
+    "nodemon": "^2.0.15",
     "sequelize": "^6.8.0"
   }
 }

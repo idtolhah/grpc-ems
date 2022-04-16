@@ -61,10 +61,12 @@ func (uc *AreaClient) GetAreas(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	jsonData := cache.GetCacheByKeyDirect("areas")
-	if jsonData != nil && utils.GetEnv("USE_CACHE") == "yes" {
-		utils.Response(c, jsonData, nil)
-		return
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		jsonData := cache.GetCacheByKeyDirect("areas")
+		if jsonData != nil {
+			utils.Response(c, jsonData, nil)
+			return
+		}
 	}
 
 	if err := prepareAreaGrpcClient(&ctx); err != nil {
