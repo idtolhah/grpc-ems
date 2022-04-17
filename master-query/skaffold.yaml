@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: master-query
+build:
+  artifacts:
+  - image: master
+    docker:
+      dockerfile: Dockerfile.local
+deploy:
+  kubectl:
+    manifests:
+    - master-query-deployment.yaml
+    - master-query-service.yaml

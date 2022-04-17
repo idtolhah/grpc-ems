@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: user-query
+build:
+  artifacts:
+  - image: user
+    docker:
+      dockerfile: Dockerfile.local
+deploy:
+  kubectl:
+    manifests:
+    - user-query-deployment.yaml
+    - user-query-service.yaml

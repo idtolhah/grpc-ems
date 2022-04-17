@@ -64,6 +64,7 @@ type server struct {
 }
 
 func (*server) CreatePacking(ctx context.Context, req *packingcmdpb.CreatePackingRequest) (*packingcmdpb.CreatePackingResponse, error) {
+	go log.Println("Call CreatePacking")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -85,6 +86,7 @@ func (*server) CreatePacking(ctx context.Context, req *packingcmdpb.CreatePackin
 }
 
 func (*server) CreateEquipmentChecking(ctx context.Context, req *packingcmdpb.CreateEquipmentCheckingRequest) (*packingcmdpb.CreateEquipmentCheckingResponse, error) {
+	go log.Println("Call CreateEquipmentChecking")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -116,6 +118,7 @@ func (*server) CreateEquipmentChecking(ctx context.Context, req *packingcmdpb.Cr
 }
 
 func (*server) UpdateEquipmentChecking(ctx context.Context, req *packingcmdpb.UpdateEquipmentCheckingRequest) (*packingcmdpb.UpdateEquipmentCheckingResponse, error) {
+	go log.Println("Call UpdateEquipmentChecking")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 

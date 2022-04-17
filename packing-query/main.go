@@ -45,6 +45,7 @@ type server struct {
 }
 
 func GetEquipmentCheckings(id int64) []*packingquerypb.EquipmentChecking {
+	go log.Println("Call GetEquipmentCheckings by id")
 	var data []*packingquerypb.EquipmentChecking
 	results, err := db_client.Query(`SELECT COALESCE(ao_created_at, '') FROM equipment_checkings WHERE id=?`, id)
 	if err != nil {
@@ -64,6 +65,7 @@ func GetEquipmentCheckings(id int64) []*packingquerypb.EquipmentChecking {
 }
 
 func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsRequest) (*packingquerypb.GetPackingsResponse, error) {
+	go log.Println("Call GetPackings")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -142,6 +144,7 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 }
 
 func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingRequest) (*packingquerypb.GetPackingResponse, error) {
+	go log.Println("Call GetPacking by id")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -223,6 +226,7 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 }
 
 func (*server) GetSummary(ctx context.Context, req *packingquerypb.GetSummaryRequest) (*packingquerypb.GetSummaryResponse, error) {
+	go log.Println("Call GetSummary")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 

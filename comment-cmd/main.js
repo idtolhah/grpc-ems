@@ -16,7 +16,7 @@ var packageDefinition = protoLoader.loadSync(
 var comment_proto = grpc.loadPackageDefinition(packageDefinition).comment
 
 async function createPackingComment(call, callback) {
-    // console.log('Called CreatePackingComment: ')
+    console.log('Call CreatePackingComment')
     // console.log('Call: ' + JSON.stringify(call.request))
     try {
         const req = call.request

@@ -27,6 +27,7 @@ type server struct {
 
 // Implementations
 func (*server) GetUserDetails(ctx context.Context, req *userpb.GetUserDetailsRequest) (*userpb.GetUserDetailsResponse, error) {
+	go log.Println("Call GetUserDetails")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -68,6 +69,7 @@ func (*server) GetUserDetails(ctx context.Context, req *userpb.GetUserDetailsReq
 }
 
 func (*server) GetUsers(ctx context.Context, req *userpb.GetUsersRequest) (*userpb.GetUsersResponse, error) {
+	go log.Println("Call GetUsers")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -120,6 +122,7 @@ func (*server) GetUsers(ctx context.Context, req *userpb.GetUsersRequest) (*user
 }
 
 func (*server) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
+	go log.Println("Call login")
 	_, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 

@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: packing-query
+build:
+  artifacts:
+  - image: packing-query
+    docker:
+      dockerfile: Dockerfile.local
+deploy:
+  kubectl:
+    manifests:
+    - packing-query-deployment.yaml
+    - packing-query-service.yaml

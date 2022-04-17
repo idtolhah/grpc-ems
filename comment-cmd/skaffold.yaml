@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: comment-cmd
+build:
+  artifacts:
+  - image: comment-cmd
+    docker:
+      dockerfile: Dockerfile.local
+deploy:
+  kubectl:
+    manifests:
+    - comment-cmd-deployment.yaml
+    - comment-cmd-service.yaml
