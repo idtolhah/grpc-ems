@@ -53,7 +53,7 @@ func (*server) GetUserDetails(ctx context.Context, req *userpb.GetUserDetailsReq
 
 	return &userpb.GetUserDetailsResponse{
 		User: &userpb.User{
-			Id:           data.Id.Hex(),
+			Id:           data.Id,
 			Name:         data.Name,
 			Email:        data.Email,
 			IsAdmin:      int32(data.IsAdmin),
@@ -103,7 +103,7 @@ func (*server) GetUsers(ctx context.Context, req *userpb.GetUsersRequest) (*user
 		users = append(
 			users,
 			&userpb.User{
-				Id:           d.Id.Hex(),
+				Id:           d.Id,
 				Name:         d.Name,
 				Email:        d.Email,
 				IsAdmin:      int32(d.IsAdmin),
@@ -141,19 +141,19 @@ func (*server) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.Log
 		return nil, utils.Error_credentials()
 	}
 
-	uid, err := primitive.ObjectIDFromHex(data.Id.Hex())
-	if err != nil {
-		return nil, utils.Error_response(err)
-	}
+	// uid, err := primitive.ObjectIDFromHex(data.Id)
+	// if err != nil {
+	// 	return nil, utils.Error_response(err)
+	// }
 
-	token, errToken := generateToken(uid.Hex())
+	token, errToken := generateToken(data.Id)
 	if errToken != nil {
 		return nil, utils.Error_response(errToken)
 	}
 
 	return &userpb.LoginResponse{
 		User: &userpb.User{
-			Id:           data.Id.Hex(),
+			Id:           data.Id,
 			Name:         data.Name,
 			Email:        data.Email,
 			IsAdmin:      int32(data.IsAdmin),

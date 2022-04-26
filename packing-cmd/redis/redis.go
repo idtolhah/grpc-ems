@@ -16,7 +16,8 @@ func NewClient() {
 		log.Fatalln("Invalid db")
 	}
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT"),
+		// Addr:     utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT"),
+		Addr:     utils.GetEnv("REDIS_HOST") + ":6379",
 		Password: utils.GetEnv("REDIS_PWD"),
 		DB:       db,
 	})
@@ -32,4 +33,13 @@ func SendToRedisCacheDirect(key string, val string) {
 		return
 	}
 	log.Println("Data Cached")
+}
+
+func DeleteRedisCacheDirect(key string) {
+	err := redisClient.Del(key).Err()
+	if err != nil {
+		utils.Error_response(err)
+		return
+	}
+	log.Println("Cache Deleted")
 }

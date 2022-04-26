@@ -91,7 +91,7 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 		page, _ = strconv.Atoi(req.Page)
 		perpage, _ = strconv.Atoi(req.Perpage)
 		offset := (page - 1) * perpage
-		last_page = int(math.Ceil(float64(total / perpage)))
+		last_page = int(math.Ceil(float64(total) / float64(perpage)))
 		condition += " LIMIT " + req.Perpage + " OFFSET " + strconv.Itoa(int(offset))
 	}
 	// Pagination: End
@@ -135,8 +135,20 @@ func (*server) GetPackings(ctx context.Context, req *packingquerypb.GetPackingsR
 
 	if utils.GetEnv("USE_CACHE") == "yes" {
 		go func() {
-			stringData, _ := json.Marshal(res.Packings)
-			redis.SendToRedisCacheDirect("packings", string(stringData))
+			byteData, _ := json.Marshal(res.Packings)
+			redis.SendToRedisCacheDirect("packings?page="+req.Page+"&perpage="+req.Perpage, string(byteData))
+		}()
+		go func() {
+			byteTotal, _ := json.Marshal(res.Total)
+			redis.SendToRedisCacheDirect("packings-total?page="+req.Page+"&perpage="+req.Perpage, string(byteTotal))
+		}()
+		go func() {
+			bytePage, _ := json.Marshal(res.Page)
+			redis.SendToRedisCacheDirect("packings-page?page="+req.Page+"&perpage="+req.Perpage, string(bytePage))
+		}()
+		go func() {
+			byteLastPage, _ := json.Marshal(res.LastPage)
+			redis.SendToRedisCacheDirect("packings-last-page?page="+req.Page+"&perpage="+req.Perpage, string(byteLastPage))
 		}()
 	}
 
@@ -217,8 +229,8 @@ func (*server) GetPacking(ctx context.Context, req *packingquerypb.GetPackingReq
 
 	if utils.GetEnv("USE_CACHE") == "yes" {
 		go func() {
-			stringData, _ := json.Marshal(&res)
-			redis.SendToRedisCacheDirect("packings-id-"+strconv.Itoa(int(res.Packing.Id)), string(stringData))
+			byteData, _ := json.Marshal(&res)
+			redis.SendToRedisCacheDirect("packings-id-"+strconv.Itoa(int(res.Packing.Id)), string(byteData))
 		}()
 	}
 

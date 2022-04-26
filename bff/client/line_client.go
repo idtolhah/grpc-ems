@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"log"
 
 	"bff/cache"
 	"bff/pb/masterpb"
@@ -57,6 +58,7 @@ func (uc *LineClient) GetLines(c *gin.Context) {
 	if utils.GetEnv("USE_CACHE") == "yes" {
 		jsonData := cache.GetCacheByKeyDirect("lines")
 		if jsonData != nil {
+			go log.Println("Use Cache")
 			utils.Response(c, jsonData, nil)
 			return
 		}

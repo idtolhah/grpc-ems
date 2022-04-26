@@ -82,6 +82,10 @@ func (*server) CreatePacking(ctx context.Context, req *packingcmdpb.CreatePackin
 		return nil, errId
 	}
 
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		redis.DeleteRedisCacheDirect("packings")
+	}
+
 	return &packingcmdpb.CreatePackingResponse{Id: lastId}, nil
 }
 

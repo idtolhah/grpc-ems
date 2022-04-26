@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"log"
 
 	"bff/cache"
 	"bff/pb/masterpb"
@@ -66,6 +67,7 @@ func (uc *ContactClient) GetContacts(c *gin.Context) {
 	if utils.GetEnv("USE_CACHE") == "yes" {
 		jsonData := cache.GetCacheByKeyDirect("contacts")
 		if jsonData != nil {
+			go log.Println("Use Cache")
 			utils.Response(c, jsonData, nil)
 			return
 		}

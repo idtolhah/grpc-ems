@@ -6,24 +6,23 @@ import (
 
 	"user/utils"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type User struct {
-	Id           primitive.ObjectID `bson:"_id,omitempty"`
-	Name         string             `bson:"name,omitempty"`
-	Email        string             `bson:"email,omitempty"`
-	Password     string             `bson:"password,omitempty"`
-	IsAdmin      uint               `bson:"is_admin,omitempty"`
-	GroupId      string             `bson:"group_id,omitempty"`
-	RoleId       uint               `bson:"role_id,omitempty"`
-	RefineryId   uint               `bson:"refinery_id,omitempty"`
-	AreaId       uint               `bson:"area_id,omitempty"`
-	DepartmentId uint               `bson:"department_id,omitempty"`
-	CreatedAt    string             `bson:"createdAt,omitempty"`
-	UpdatedAt    string             `bson:"updatedAt,omitempty"`
+	Id           string `bson:"id,omitempty"`
+	Name         string `bson:"name,omitempty"`
+	Email        string `bson:"email,omitempty"`
+	Password     string `bson:"password,omitempty"`
+	IsAdmin      uint   `bson:"is_admin,omitempty"`
+	GroupId      string `bson:"group_id,omitempty"`
+	RoleId       uint   `bson:"role_id,omitempty"`
+	RefineryId   uint   `bson:"refinery_id,omitempty"`
+	AreaId       uint   `bson:"area_id,omitempty"`
+	DepartmentId uint   `bson:"department_id,omitempty"`
+	CreatedAt    string `bson:"createdAt,omitempty"`
+	UpdatedAt    string `bson:"updatedAt,omitempty"`
 }
 
 var _ = utils.LoadLocalEnv()

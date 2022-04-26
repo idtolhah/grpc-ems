@@ -30,7 +30,7 @@ var (
 
 // Main
 func main() {
-	log.Println("Bff Service")
+	log.Println("Bff Service...")
 	r := gin.Default()
 
 	// enable rate limiter per ip address
@@ -78,7 +78,7 @@ func main() {
 	api.POST("/packings", packing_cmd_client.CreatePacking)
 	api.PUT("/packings/equipment-checkings/:id/comment", comment_cmd_client.CreatePackingComment)
 	api.POST("/packings/:id/equipment-checkings", packing_cmd_client.CreateEquipmentChecking)
-	api.PUT("/packings/:id/equipment-checkings/:ecid", packing_cmd_client.UpdateEquipmentChecking)
+	api.PUT("/packings/equipment-checkings/:id", packing_cmd_client.UpdateEquipmentChecking)
 
 	protected := api.Use(auth.IsAuthenticated())
 	// Users

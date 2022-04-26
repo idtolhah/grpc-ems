@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - image: packing-query:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           name: packing-query
           ports:
             - containerPort: 50053

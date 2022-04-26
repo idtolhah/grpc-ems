@@ -20,7 +20,8 @@ func GetCacheByKeyDirect(key string) interface{} {
 		log.Fatalln("Invalid db")
 	}
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT"),
+		// Addr:     utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT"),
+		Addr:     utils.GetEnv("REDIS_HOST") + ":6379",
 		Password: utils.GetEnv("REDIS_PWD"),
 		DB:       db,
 	})

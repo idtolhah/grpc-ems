@@ -1,14 +1,14 @@
 apiVersion: skaffold/v2beta28
 kind: Config
 metadata:
-  name: user-query
+  name: filtration-query
 build:
   artifacts:
-  - image: user-query
+  - image: filtration-query
     docker:
       dockerfile: Dockerfile.local
 deploy:
   kubectl:
     manifests:
-    - user-query-deployment.yaml
-    - user-query-service.yaml
+    - filtration-query-deployment.yaml
+    - filtration-query-service.yaml

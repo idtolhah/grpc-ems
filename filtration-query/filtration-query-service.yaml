@@ -6,14 +6,14 @@ metadata:
     kompose.version: 1.26.1 (HEAD)
   creationTimestamp: null
   labels:
-    io.kompose.service: packing-query
-  name: packing-query
+    io.kompose.service: filtration-query
+  name: filtration-query
 spec:
   ports:
-    - name: "50053"
-      port: 50053
-      targetPort: 50053
+    - name: "50056"
+      port: 50056
+      targetPort: 50056
   selector:
-    io.kompose.service: packing-query
+    io.kompose.service: filtration-query
 status:
   loadBalancer: {}

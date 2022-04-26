@@ -119,7 +119,7 @@ func (ac *PackingCmdClient) UpdateEquipmentChecking(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
 
-	param, err := utils.GetParam(c, "ecid")
+	param, err := utils.GetParam(c, "id")
 	if err != nil {
 		utils.Response(c, nil, err)
 		return
@@ -137,11 +137,11 @@ func (ac *PackingCmdClient) UpdateEquipmentChecking(c *gin.Context) {
 		return
 	}
 
-	ecid, _ := strconv.Atoi(param)
+	id, _ := strconv.Atoi(param)
 	data, err := packingcmdGrpcServiceClient.UpdateEquipmentChecking(
 		ctx,
 		&packingcmdpb.UpdateEquipmentCheckingRequest{
-			Id: int64(ecid), AoConclusion: req.AoConclusion, AoNote: req.AoNote, AoId: req.AoId,
+			Id: int64(id), AoConclusion: req.AoConclusion, AoNote: req.AoNote, AoId: req.AoId,
 			AoObservationDatetime: req.AoObservationDatetime,
 		},
 	)

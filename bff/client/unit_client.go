@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"log"
 
 	"bff/cache"
 	"bff/pb/masterpb"
@@ -57,6 +58,7 @@ func (uc *UnitClient) GetUnits(c *gin.Context) {
 	if utils.GetEnv("USE_CACHE") == "yes" {
 		jsonData := cache.GetCacheByKeyDirect("units")
 		if jsonData != nil {
+			go log.Println("Use Cache")
 			utils.Response(c, jsonData, nil)
 			return
 		}
@@ -77,6 +79,8 @@ func (uc *UnitClient) GetUnits(c *gin.Context) {
 	for _, u := range res.GetUnits() {
 		units = append(units, masterpb.Unit{Id: u.Id, Name: u.Name})
 	}
+
+	go log.Println("Use DB")
 	utils.Response(c, &units, nil)
 }
 

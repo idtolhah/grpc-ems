@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"bff/cache"
@@ -64,6 +65,7 @@ func (uc *AreaClient) GetAreas(c *gin.Context) {
 	if utils.GetEnv("USE_CACHE") == "yes" {
 		jsonData := cache.GetCacheByKeyDirect("areas")
 		if jsonData != nil {
+			go log.Println("Use Cache")
 			utils.Response(c, jsonData, nil)
 			return
 		}

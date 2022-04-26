@@ -1,8 +1,8 @@
 package redis
 
 import (
+	"filtration-query/utils"
 	"log"
-	"master/utils"
 	"strconv"
 
 	"github.com/go-redis/redis"
@@ -15,10 +15,6 @@ func NewClient() {
 	if err != nil {
 		log.Fatalln("Invalid db")
 	}
-
-	go log.Printf("REDIS_HOST====>%v", utils.GetEnv("REDIS_HOST"))
-	go log.Printf("REDIS_PORT====>%v", utils.GetEnv("REDIS_PORT"))
-
 	redisClient = redis.NewClient(&redis.Options{
 		// Addr:     utils.GetEnv("REDIS_HOST") + ":" + utils.GetEnv("REDIS_PORT"),
 		Addr:     utils.GetEnv("REDIS_HOST") + ":6379",

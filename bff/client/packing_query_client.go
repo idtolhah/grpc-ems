@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"log"
 	"strconv"
 
 	"bff/cache"
@@ -75,6 +76,18 @@ func preparePackingGrpcClient(c *context.Context) error {
 func (ac *PackingQueryClient) GetPackings(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c, timeout)
 	defer cancel()
+
+	if utils.GetEnv("USE_CACHE") == "yes" {
+		jsonData := cache.GetCacheByKeyDirect("packings?page=" + c.Query("page") + "&perpage=" + c.Query("perpage"))
+		jsonTotal := cache.GetCacheByKeyDirect("packings-total?page=" + c.Query("page") + "&perpage=" + c.Query("perpage"))
+		jsonPage := cache.GetCacheByKeyDirect("packings-page?page=" + c.Query("page") + "&perpage=" + c.Query("perpage"))
+		jsonLastPage := cache.GetCacheByKeyDirect("packings-last-page?page=" + c.Query("page") + "&perpage=" + c.Query("perpage"))
+		if jsonData != nil && jsonTotal != nil && jsonPage != nil && jsonLastPage != nil {
+			go log.Println("Use Cache")
+			utils.ResponsePaged(c, jsonData, jsonTotal, jsonPage, jsonLastPage, nil)
+			return
+		}
+	}
 
 	if err := preparePackingGrpcClient(&ctx); err != nil {
 		utils.Response(c, nil, err)

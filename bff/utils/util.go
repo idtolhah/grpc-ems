@@ -45,7 +45,7 @@ func Response(c *gin.Context, data interface{}, err error) {
 	c.JSON(statusCode, gin.H{"data": data, "error": errorMessage})
 }
 
-func ResponsePaged(c *gin.Context, data interface{}, total int, page int, last_page int, err error) {
+func ResponsePaged(c *gin.Context, data interface{}, total interface{}, page interface{}, last_page interface{}, err error) {
 	statusCode := http.StatusOK
 	var errorMessage string
 	if err != nil {
