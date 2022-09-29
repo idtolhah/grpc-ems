@@ -1,5 +1,8 @@
 # grpc-ems
 
+This is Golang with GRPC microservices of EMS (Equipment Maintenance System) project 
+
+
 # Development
 
 ## Run Mongo & Mysql
@@ -8,13 +11,10 @@ docker-compose --file local.yml up -d
 ## Run Local
 sh start-local.sh 
 
+
 # Production
 ## Via Docker Compose
 docker-compose up -d
-
-
-
-
 
 # Run On K8s
 ## Build Image and Run
