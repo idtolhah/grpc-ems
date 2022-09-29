@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package filtrationquerypb;
+option go_package = "./pb/filtrationquerypb";
+
+message Unit {
+    int32 id = 1;
+    string name = 2;
+}
+message Filter {
+    int32 id = 1;
+    string code = 2;
+}
+message Dirt {
+    int32 id = 1;
+    string name = 2;
+}
+message User {
+    string id = 1;
+    string name = 2;
+    string group_id = 3;
+}
+message Filtration {
+    int64 id = 1;
+    int32 fo_filter_condition = 2;
+    string createdAt = 3;
+    string ao_followed_up_date = 4;
+    int32 ao_conclusion = 5;
+    string completed_date = 6;
+    int32 status = 7;
+    
+    Unit unit = 8;
+    Filter filter = 9;
+    Dirt dirt = 10;
+}
+// message FiltrationDetail {
+//     int64 id = 1;
+//     float delta_pressure_before = 2;
+//     float delta_pressure_after = 3;
+//     int32 fo_filter_condition = 4;
+//     string fo_note = 5;
+//     int32 ao_conclusion = 6;
+//     string ao_note = 7;
+//     string ao_report_note = 8;
+//     string ao_followed_up_date = 9;
+//     string mr_comment = 10;
+//     string mr_created_at = 11;
+//     int32 status = 12;
+//     string completed_date = 13;
+//     string createdAt = 14;
+//     string updatedAt = 15;
+//     int32 unit_id = 16;
+//     int32 department_id = 17;
+//     int32 area_id = 18;
+//     string fo_id = 19;
+//     string ao_id = 20;
+//     string mr_id = 21;
+//     int32 filter_id = 22;
+//     int32 dirt_id = 23;
+// }
+
+message GetFiltrationsRequest {
+    string nophoto = 1;
+    string page = 2;
+    string perpage = 3;
+    string statuses = 4;
+    string filter_id = 5;
+    string date = 7; 
+    string fo_filter_condition = 8;
+}
+message GetFiltrationsResponse {
+    repeated Filtration filtrations = 1;
+    int64 total = 2;
+    int64 page = 3;
+    int64 last_page = 4;
+}
+
+service FiltrationQueryService {
+    rpc GetFiltrations(GetFiltrationsRequest) returns (GetFiltrationsResponse) {};
+}

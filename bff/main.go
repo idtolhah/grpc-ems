@@ -79,6 +79,8 @@ func main() {
 	api.PUT("/packings/equipment-checkings/:id/comment", comment_cmd_client.CreatePackingComment)
 	api.POST("/packings/:id/equipment-checkings", packing_cmd_client.CreateEquipmentChecking)
 	api.PUT("/packings/equipment-checkings/:id", packing_cmd_client.UpdateEquipmentChecking)
+	// Filtration
+	// api.GET("/filtrations", filtration_query_client.GetFiltrations)
 
 	protected := api.Use(auth.IsAuthenticated())
 	// Users

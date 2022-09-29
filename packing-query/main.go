@@ -281,7 +281,7 @@ func init() {
 
 // Main
 func main() {
-	log.Println("Packing Service")
+	go log.Println("Packing Service")
 	redis.NewClient()
 
 	lis, err := net.Listen("tcp", utils.GetEnv("GRPC_SERVICE_HOST")+":"+utils.GetEnv("GRPC_SERVICE_PORT"))
@@ -317,9 +317,9 @@ func main() {
 	// Register server to Reflection
 	reflection.Register(s)
 
-	log.Printf("Server started at %v", lis.Addr().String())
+	go log.Printf("Server started at %v", lis.Addr().String())
 	err = s.Serve(lis)
 	if err != nil {
-		log.Println("ERROR:", err.Error())
+		go log.Println("ERROR:", err.Error())
 	}
 }

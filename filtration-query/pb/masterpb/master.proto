@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package master;
+option go_package="./masterpb";
+
+// Unit
+message Unit {
+    int32 id = 1;
+    string name = 2;
+}
+message GetUnitsRequest {}
+message GetUnitsResponse {
+    repeated Unit units = 1;
+}
+message GetUnitRequest {
+    string id = 1;
+}
+message GetUnitResponse {
+    Unit unit = 1;
+}
+
+// Department
+message Department {
+    int32 id = 1;
+    string name = 2;
+}
+message GetDepartmentsRequest {}
+message GetDepartmentsResponse {
+    repeated Department departments = 1;
+}
+message GetDepartmentRequest {
+    string id = 1;
+}
+message GetDepartmentResponse {
+    Department department = 1;
+}
+
+// Area
+message Area {
+    int32 id = 1;
+    string name = 2;
+}
+message GetAreasRequest {}
+message GetAreasResponse {
+    repeated Area areas = 1;
+}
+message GetAreaRequest {
+    string id = 1;
+}
+message GetAreaResponse {
+    Area area = 1;
+}
+
+// Line
+message Line {
+    int32 id = 1;
+    string name = 2;
+}
+message GetLinesRequest {}
+message GetLinesResponse {
+    repeated Line lines = 1;
+}
+message GetLineRequest {
+    string id = 1;
+}
+message GetLineResponse {
+    Line line = 1;
+}
+
+// Machine
+message Machine {
+    int32 id = 1;
+    string name = 2;
+}
+message GetMachinesRequest {}
+message GetMachinesResponse {
+    repeated Machine machines = 1;
+}
+message GetMachineRequest {
+    string id = 1;
+}
+message GetMachineResponse {
+    Machine machine = 1;
+}
+
+// AssetEquipment
+message AssetEquipment {
+    int32 id = 1;
+    string item = 2;
+    string item_check = 3;
+    string checking_method = 4;
+    string tools = 5;
+    string standard_area = 6;
+    string photo = 7;
+    int32 line_id = 8;
+    int32 machine_id = 9;
+}
+message GetAssetEquipmentsRequest {}
+message GetAssetEquipmentsResponse {
+    repeated AssetEquipment assetequipments = 1;
+}
+message GetAssetEquipmentRequest {
+    string id = 1;
+}
+message GetAssetEquipmentResponse {
+    AssetEquipment assetequipment = 1;
+}
+
+// Contact
+message Contact {
+    int32 id = 1;
+    string title = 2;
+    string number = 3;
+    string optime = 4;
+    string opday = 5;
+    string email = 6;
+}
+message GetContactsRequest {}
+message GetContactsResponse {
+    repeated Contact contacts = 1;
+}
+
+// Filter
+message Filter {
+    int32 id = 1;
+    string code = 2;
+}
+message GetFilterRequest {
+    string id = 1;
+}
+message GetFilterResponse {
+    Filter filter = 1;
+}
+
+// Dirt
+message Dirt {
+    int32 id = 1;
+    string name = 2;
+}
+message GetDirtRequest {
+    string id = 1;
+}
+message GetDirtResponse {
+    Dirt dirt = 1;
+}
+
+// Services
+service MasterService {
+    rpc GetUnits(GetUnitsRequest) returns (GetUnitsResponse) {};
+    rpc GetUnit(GetUnitRequest) returns (GetUnitResponse) {};
+
+    rpc GetDepartments(GetDepartmentsRequest) returns (GetDepartmentsResponse) {};
+    rpc GetDepartment(GetDepartmentRequest) returns (GetDepartmentResponse) {};
+
+    rpc GetAreas(GetAreasRequest) returns (GetAreasResponse) {};
+    rpc GetArea(GetAreaRequest) returns (GetAreaResponse) {};
+
+    rpc GetLines(GetLinesRequest) returns (GetLinesResponse) {};
+    rpc GetLine(GetLineRequest) returns (GetLineResponse) {};
+
+    rpc GetMachines(GetMachinesRequest) returns (GetMachinesResponse) {};
+    rpc GetMachine(GetMachineRequest) returns (GetMachineResponse) {};
+
+    rpc GetAssetEquipments(GetAssetEquipmentsRequest) returns (GetAssetEquipmentsResponse) {};
+    rpc GetAssetEquipment(GetAssetEquipmentRequest) returns (GetAssetEquipmentResponse) {};
+
+    rpc GetContacts(GetContactsRequest) returns (GetContactsResponse) {};
+
+    rpc GetFilter(GetFilterRequest) returns (GetFilterResponse) {};
+
+    rpc GetDirt(GetDirtRequest) returns (GetDirtResponse) {};
+}

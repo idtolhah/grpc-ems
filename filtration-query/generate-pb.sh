@@ -1,2 +1,2 @@
 source ~/.bash_profile
-protoc pb/packingquerypb/packingquery.proto --go_out=. --go-grpc_out=. 
+protoc pb/filtrationquerypb/filtrationquery.proto --go_out=. --go-grpc_out=. 

@@ -12,6 +12,10 @@ sh start-local.sh
 ## Via Docker Compose
 docker-compose up -d
 
+
+
+
+
 # Run On K8s
 ## Build Image and Run
 docker compose -f docker-compose-k8s.yml up -d
